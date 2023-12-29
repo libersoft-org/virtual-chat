@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<head>
+ <title>Virtual Chat</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <link rel="stylesheet" href="chat.css" type="text/css" />
+ <link rel="shortcut icon" href="favicon.svg" />
+</head>
+<body>
+ <script src="https://threejs.org/build/three.min.js"></script>
+ <script src="chat.js"></script>
+ <input onkeypress="messageKeyPress(event)" id="message-text" style="display: none" type="text" placeholder="Enter your message"/>
+ <a onclick="toggleMessage()" id="message-button" class="button">Message</a>
+ <div id="status">Not connected</div>
+</body>
+</html>

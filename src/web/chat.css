@@ -1,0 +1,45 @@
+body {
+ margin: 0;
+ font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+canvas {
+ width: 100%; height: 100%;
+}
+
+input {
+ padding: 10px;
+ border-radius: 10px;
+ background-color: #FFF;
+ color: #000;
+}
+
+.button {
+ padding: 10px;
+ border-radius: 10px;
+ font-weight: bold;
+ background-color: #FFF;
+ color: #000;
+ cursor: pointer;
+}
+
+#message-button {
+ position: absolute;
+ top: 10px;
+ right: 10px;
+}
+
+#message-text {
+ position: absolute;
+ top: 10px;
+ right: 120px;
+}
+
+#status {
+ position: absolute;
+ bottom: 0px;
+ padding: 10px;
+ width: 100%;
+ background-color: #333;
+ color: #FFF;
+}

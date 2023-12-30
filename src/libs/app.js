@@ -64,6 +64,7 @@ class App {
      standalone: true,
      port: 80,
      socket_path: '/run/chat.sock',
+     client_path: '../web/'
     },
     other: {
      log_to_file: true,

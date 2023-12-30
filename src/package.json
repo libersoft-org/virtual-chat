@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "elysia": "*",
-    "elysia-ip": "*",
-    "ws": "*"
-  }
-}

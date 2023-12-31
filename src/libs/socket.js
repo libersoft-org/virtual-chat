@@ -58,14 +58,32 @@ class Socket {
  }
 
  getEnter(ws, data) {
+  const res = { method: 'enter' }
   // TODO: check if not already in room
-  if (!'name' in data) return this.send(ws, { method: 'enter', error: 2, message: 'Missing name' });
-  // TODO: check name validaty
-  if (!'color' in data) return this.send(ws, { method: 'enter', error: 4, message: 'Missing color' });
-  if (!Number.isInteger(data.color) || number < 1 || number > 6) return this.send(ws, { method: 'enter', error: 5, message: 'Wrong color ID' });
-  if (!'sex' in data) return this.send(ws, { method: 'enter', error: 6, message: 'Missing sex' });
-  if (!Number.isInteger(data.sex) || number < 0 || number > 4) return this.send(ws, { method: 'enter', error: 7, message: 'Wrong sex ID' });
-  // TODO: enter 
+  if (!'name' in data) {
+   res.error = 2;
+   res.message = 'Missing name';
+  } else if (data.name.length > 10) { // TODO: add advanced name validaty check: > 1, a-z, A-Z, 0-9, _-.
+   res.error = 3;
+   res.message = 'Wrong name format - can contain 3 - 16 characters, only letters, numbers, dot, dash or underscore';
+  } else if (!'color' in data) {
+   res.error = 4;
+   res.message = 'Missing color';
+  } else if (!Number.isInteger(data.color) || number < 1 || number > 6) {
+   res.error = 5;
+   res.message = 'Wrong color ID';
+  } else if (!'sex' in data) {
+   res.error = 6;
+   res.message = 'Missing sex';
+  } else if (!Number.isInteger(data.sex) || number < 0 || number > 4) {
+   res.error = 7;
+   res.message = 'Wrong sex ID';
+  } else {
+   res.error = 0;
+   // TODO: enter 
+  }
+  this.send(ws, res);
+  return;
  }
 
  getExit(ws) {
@@ -74,30 +92,35 @@ class Socket {
  }
 
  getMove(ws, data) {
-  // TODO: check if in room - if not, throw an error
-  if ('x' in data && 'y' in data) return this.send(ws, { method: 'move', error: 2, message: 'Missing coordinates' });
-  this.broadcast({
-   method: 'move',
-   data: {
-    user: ws.uuid,
-    x: data.x,
-    y: data.y
-   }
-  });
+  const res = { method: 'move' }
+  if (1!=1) { // TODO: check if in room - if not, throw an error
+   res.error = 1;
+   res.message = 'User not in room';
+  } else if ('x' in data && 'y' in data) {
+   res.error = 2;
+   res.message = 'Missing coordinates';
+  }
+  // TODO: return only to user, dont broadcast
+  else {
+   res.error = 0;
+   res.data = { user: ws.uuid, x: data.x, y: data.y }
+   this.broadcast(res);
+  }
  }
 
  getMessage(ws, data) {
-  // TODO: check if in room - if not, throw an error
-  if (!'message' in data) return this.send(ws, { method: 'message', error: 2, message: 'Missing message' });
-  // TODO: check if ID exists and then set a name
-  const name = 'User';
-  this.broadcast({
-   method: 'message',
-   data: {
-    name: name,
-    message: data.message,
-   }
-  });
+  const res = { method: 'message' }
+  if (1!=1) { // TODO: check if in room - if not, throw an error
+   res.error = 1;
+   res.message = 'User not in room';
+  } else if (!'message' in data) {
+   res.error = 2;
+   res.message = 'Missing message';
+  } else if (1!=1) { // TODO: check if ID exists and then set a name
+   res.error = 0;
+   res.data = { name: 'User', message: data.message } // TODO: set user
+  }
+  this.broadcast(res);
  }
 }
 

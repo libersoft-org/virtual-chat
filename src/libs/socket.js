@@ -80,10 +80,10 @@ class Socket {
    res.message = 'Wrong sex ID';
   } else {
    res.error = 0;
-   // TODO: enter 
+   // TODO: enter
+   this.broadcast(res);
   }
-  this.send(ws, res);
-  return;
+  if (res.error != 0) this.send(ws, res);
  }
 
  getExit(ws) {
@@ -99,13 +99,12 @@ class Socket {
   } else if ('x' in data && 'y' in data) {
    res.error = 2;
    res.message = 'Missing coordinates';
-  }
-  // TODO: return only to user, dont broadcast
-  else {
+  } else {
    res.error = 0;
    res.data = { user: ws.uuid, x: data.x, y: data.y }
    this.broadcast(res);
   }
+  if (res.error != 0) this.send(ws, res);
  }
 
  getMessage(ws, data) {
@@ -116,11 +115,12 @@ class Socket {
   } else if (!'message' in data) {
    res.error = 2;
    res.message = 'Missing message';
-  } else if (1!=1) { // TODO: check if ID exists and then set a name
+  } else {
    res.error = 0;
-   res.data = { name: 'User', message: data.message } // TODO: set user
+   res.data = { name: 'User', message: data.message } // TODO: set user name
+   this.broadcast(res);
   }
-  this.broadcast(res);
+  if (res.error != 0) this.send(ws, res);
  }
 }
 

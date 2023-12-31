@@ -10,6 +10,7 @@
 
 ## Features
 
+- Finish socket.js methods
 - Add network players - new array - select colour, name, sex, enter / exit
 - Chat history - through network (not directly from user)
 - Chat bubble in UI window - through network (not directly from user)

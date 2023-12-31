@@ -96,7 +96,7 @@ class Socket {
   if (1!=1) { // TODO: check if in room - if not, throw an error
    res.error = 1;
    res.message = 'User not in room';
-  } else if ('x' in data && 'y' in data) {
+  } else if (!'x' in data || !'y' in data) {
    res.error = 2;
    res.message = 'Missing coordinates';
   } else {

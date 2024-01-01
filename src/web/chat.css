@@ -30,6 +30,7 @@ input, select {
  border-radius: 10px;
  text-align: center;
  font-weight: bold;
+ border: 1px solid #000;
  background-color: var(--form-bg);
  color: var(--form-text);
  cursor: pointer;
@@ -92,12 +93,14 @@ input, select {
 
 #login .color-picker {
  display: flex;
+ justify-content: center;
  gap: 5px;
 }
 
 #login .color-picker .color {
  width: 30px;
  height: 30px;
+ border: 1px solid #000;
  border-radius: 5px;
 }
 

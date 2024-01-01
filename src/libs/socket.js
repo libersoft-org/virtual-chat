@@ -59,11 +59,13 @@ class Socket {
 
  getEnter(ws, data) {
   const res = { method: 'enter' }
-  // TODO: check if not already in room
-  if (!'name' in data) {
+  if (this.users[ws.uuid]) {
+   res.error = 1;
+   res.message = 'User not in room';
+  } else if (!'name' in data) {
    res.error = 2;
    res.message = 'Missing name';
-  } else if (data.name.length > 10) { // TODO: add advanced name validaty check: > 1, a-z, A-Z, 0-9, _-.
+  } else if (/^[A-Za-z0-9._-]{1,16}$/.test(data.name)) {
    res.error = 3;
    res.message = 'Wrong name format - can contain 3 - 16 characters, only letters, numbers, dot, dash or underscore';
   } else if (!'color' in data) {
@@ -75,30 +77,48 @@ class Socket {
   } else if (!'sex' in data) {
    res.error = 6;
    res.message = 'Missing sex';
-  } else if (!Number.isInteger(data.sex) || number < 0 || number > 4) {
+  } else if (data.sex == true || data.sex == false) {
    res.error = 7;
    res.message = 'Wrong sex ID';
   } else {
    res.error = 0;
-   // TODO: enter
+   res.data = {
+    connection: ws.uuid,
+    name: data.name,
+    color: data.color,
+    sex: data.sex
+   }
+   this.users.push(res.data);
    this.broadcast(res);
   }
   if (res.error != 0) this.send(ws, res);
  }
 
  getExit(ws) {
-  // TODO: check if in room - if not, throw an error
-  // TODO: exit room
+  const res = { method: 'exit' }
+  if (!this.users[ws.uuid]) {
+   res.error = 1;
+   res.message = 'User is not in room';
+  } else {
+   res.error = 0;
+   res.data = { id: ws.uuid }
+   this.broadcast(res);
+   delete this.users[ws.uuid];
+  }
+  if (res.error != 0) this.send(ws, res);
  }
 
  getMove(ws, data) {
   const res = { method: 'move' }
-  if (1!=1) { // TODO: check if in room - if not, throw an error
+  if (!this.users[ws.uuid]) {
    res.error = 1;
    res.message = 'User not in room';
   } else if (!'x' in data || !'y' in data) {
    res.error = 2;
    res.message = 'Missing coordinates';
+  } else if (data.x < -10 || data.x > 10 || data.y < -5 || data.y > 5) {
+   res.error = 3;
+   res.message = 'Wrong coordinates';
   } else {
    res.error = 0;
    res.data = { user: ws.uuid, x: data.x, y: data.y }
@@ -109,7 +129,7 @@ class Socket {
 
  getMessage(ws, data) {
   const res = { method: 'message' }
-  if (1!=1) { // TODO: check if in room - if not, throw an error
+  if (!this.users[ws.uuid]) {
    res.error = 1;
    res.message = 'User not in room';
   } else if (!'message' in data) {
@@ -117,7 +137,7 @@ class Socket {
    res.message = 'Missing message';
   } else {
    res.error = 0;
-   res.data = { name: 'User', message: data.message } // TODO: set user name
+   res.data = { name: this.users[uuid].name, message: data.message }
    this.broadcast(res);
   }
   if (res.error != 0) this.send(ws, res);

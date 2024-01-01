@@ -13,8 +13,27 @@
  <script src="js/world.js"></script>
  <script src="js/network.js"></script>
  <script src="js/chat.js"></script>
+ <div id="login" class="form">
+  <div class="logo">Virtual Chat</div>
+  <input id="login-name" type="name" placeholder="Nickname" />
+  <select id="login-sex">
+   <option value="" selected>-- Gender --</option>
+   <option value="1">Male</option>
+   <option value="0">Female</option>
+  </select>
+  <div class="color-picker">
+   <div class="color red"></div>
+   <div class="color orange"></div>
+   <div class="color yellow"></div>
+   <div class="color green"></div>
+   <div class="color blue"></div>
+   <div class="color violet"></div>
+  </div>
+  <div class="button orange" onclick="net.enter()">Enter</div>
+ </div>
+ <div id="chat" class="form"></div>
  <input id="message" type="text" placeholder="Enter your message" />
- <div id="chat"></div>
+ <div id="leave" class="button" onclick="net.leave()">Leave</div>
  <div id="status">
   <div class="dot red"></div>
   <div class="text">Not connected</div>

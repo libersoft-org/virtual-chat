@@ -10,7 +10,6 @@
 
 ## Features
 
-- Merge users and connections in one array
 - Add network players on client - select colour, name, sex, enter / exit
 - Chat history - through network (not directly from user)
 - Chat bubble in UI window - through network (not directly from user)

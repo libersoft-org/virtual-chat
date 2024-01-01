@@ -55,7 +55,7 @@ input {
  overflow: auto;
  padding: 10px;
  border-radius: 10px;
- background-color: #FFF;
+ background-color: #FFFFFFBF;
  color: #000;
 }
 
@@ -64,6 +64,8 @@ input {
  top: 240px;
  left: 10px;
  width: 200px;
+ background-color: #FFFFFFBF;
+ color: #000;
 }
 
 #status {

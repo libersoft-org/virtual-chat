@@ -10,7 +10,8 @@
 
 ## Features
 
-- Add network players on client - select colour, name, sex, enter / exit
+- Add network players on client - make "Enter" in login form working
+- Make "Leave" button working
 - Chat history - through network (not directly from user)
 - Chat bubble in UI window - through network (not directly from user)
 - Get all players locations when connected

@@ -3,25 +3,21 @@ const { Common } = require('./common.js');
 class Socket {
  constructor() {
   this.connections = {};
-  this.users = {};
  }
 
  onOpen(ws) {
   const uuid = crypto.randomUUID();
   Common.addLog('WS new connection: ' + uuid);
   ws.uuid = uuid;
-  this.connections[uuid] = ws;
-  Common.addLog('WS connections: ' + Object.keys(this.connections).length);
+  this.connections[uuid] = { ws: ws };
+  this.count();
  }
 
  onClose(ws, message) {
   Common.addLog('WS connection closed: ' + ws.uuid);
-  if (this.users[ws.uuid]) {
-   delete this.users[ws.uuid];
-   Common.addLog('WS users: ' + Object.keys(this.connections).length); 
-  }
+  if (this.connections[ws.uuid].name) this.exit(ws.uuid);
   delete this.connections[ws.uuid];
-  Common.addLog('WS connections: ' + Object.keys(this.connections).length);
+  this.count();
  }
 
  onMessage(ws, json) {
@@ -42,8 +38,8 @@ class Socket {
      case 'message':
       this.getMessage(ws, msg.data);
       break;
-     case 'locations':
-      this.getLocations(ws);
+     case 'users':
+      this.getUsers(ws);
       break;
      default:
       this.send(ws, { error: 3, message: 'Unknown method in command' });
@@ -60,14 +56,31 @@ class Socket {
  }
 
  broadcast(obj) {
-  for(const ws of Object.values(this.connections)) ws.send(JSON.stringify(obj));
+  for (const ws of Object.values(this.connections)) this.send(ws, obj);
+ }
+
+ count() {
+  Common.addLog('WS connections: ' + Object.keys(this.connections).length);
+  let users = 0;
+  for (c of this.connections) if (c.user) users++;
+  Common.addLog('WS users: ' + users);
+ }
+
+ exit(uuid) {
+  this.broadcast({
+   method: 'exit',
+   error: 0,
+   data: { uuid: uuid }
+  });
+  delete this.connections[ws.uuid].user;
+  this.count();
  }
 
  getEnter(ws, data) {
   const res = { method: 'enter' }
-  if (this.users[ws.uuid]) {
+  if (this.connections[ws.uuid].user) {
    res.error = 1;
-   res.message = 'User not in room';
+   res.message = 'User is already in room';
   } else if (!'name' in data) {
    res.error = 2;
    res.message = 'Missing name';
@@ -83,13 +96,12 @@ class Socket {
   } else if (!'sex' in data) {
    res.error = 6;
    res.message = 'Missing sex';
-  } else if (data.sex == true || data.sex == false) {
+  } else if (data.sex === true || data.sex === false) {
    res.error = 7;
    res.message = 'Wrong sex ID';
   } else {
    res.error = 0;
    res.data = {
-    connection: ws.uuid,
     name: data.name,
     color: data.color,
     sex: data.sex,
@@ -97,31 +109,25 @@ class Socket {
     y: 0,
     angle: 0
    }
-   this.users.push(res.data);
-   Common.addLog('WS users: ' + Object.keys(this.connections).length); 
+   this.connections[ws.uuid].user = res.data;
+   this.count();
    this.broadcast(res);
   }
   if (res.error != 0) this.send(ws, res);
  }
 
  getExit(ws) {
-  const res = { method: 'exit' }
-  if (!this.users[ws.uuid]) {
+  if (!this.connections[ws.uuid].user) {
+   res.method = 'exit';
    res.error = 1;
    res.message = 'User is not in room';
-  } else {
-   res.error = 0;
-   res.data = { id: ws.uuid }
-   this.broadcast(res);
-   delete this.users[ws.uuid];
-   Common.addLog('WS users: ' + Object.keys(this.connections).length); 
-  }
-  if (res.error != 0) this.send(ws, res);
+   this.send(ws, res);
+  } else this.exit(ws.uuid);
  }
 
  getMove(ws, data) {
   const res = { method: 'move' }
-  if (!this.users[ws.uuid]) {
+  if (!this.connections[ws.uuid].user) {
    res.error = 1;
    res.message = 'User not in room';
   } else if (!'x' in data || !'y' in data) {
@@ -140,7 +146,7 @@ class Socket {
 
  getMessage(ws, data) {
   const res = { method: 'message' }
-  if (!this.users[ws.uuid]) {
+  if (!this.connections[ws.uuid].user) {
    res.error = 1;
    res.message = 'User not in room';
   } else if (!'message' in data) {
@@ -148,17 +154,19 @@ class Socket {
    res.message = 'Missing message';
   } else {
    res.error = 0;
-   res.data = { name: this.users[uuid].name, message: data.message }
+   res.data = { name: this.connections[uuid].user.name, message: data.message }
    this.broadcast(res);
   }
   if (res.error != 0) this.send(ws, res);
  }
 
- getLocations(ws) {
+ getUsers(ws) {
   const res = { method: 'locations' }
   res.error = 0;
-  res.data = this.users;
-  this.send(res);
+  const users = [];
+  for (const c of this.connections) if (c.user) users.push(c.user);
+  res.data = users;
+  this.send(ws, res);
  }
 }
 

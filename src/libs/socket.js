@@ -16,6 +16,10 @@ class Socket {
 
  onClose(ws, message) {
   Common.addLog('WS connection closed: ' + ws.uuid);
+  if (this.users[ws.uuid]) {
+   delete this.users[ws.uuid];
+   Common.addLog('WS users: ' + Object.keys(this.connections).length); 
+  }
   delete this.connections[ws.uuid];
   Common.addLog('WS connections: ' + Object.keys(this.connections).length);
  }
@@ -94,6 +98,7 @@ class Socket {
     angle: 0
    }
    this.users.push(res.data);
+   Common.addLog('WS users: ' + Object.keys(this.connections).length); 
    this.broadcast(res);
   }
   if (res.error != 0) this.send(ws, res);
@@ -109,6 +114,7 @@ class Socket {
    res.data = { id: ws.uuid }
    this.broadcast(res);
    delete this.users[ws.uuid];
+   Common.addLog('WS users: ' + Object.keys(this.connections).length); 
   }
   if (res.error != 0) this.send(ws, res);
  }

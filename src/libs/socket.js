@@ -38,13 +38,15 @@ class Socket {
      case 'message':
       this.getMessage(ws, msg.data);
       break;
+     case 'locations':
+      this.getLocations(ws);
+      break;
      default:
       this.send(ws, { error: 3, message: 'Unknown method in command' });
       break;
     }
    } else this.send(ws, { error: 2, message: 'Invalid command' });
   } catch (e) {
-   //console.log(e);
    this.send(ws, { error: 1, message: 'Invalid JSON' });
   }
  }
@@ -86,7 +88,10 @@ class Socket {
     connection: ws.uuid,
     name: data.name,
     color: data.color,
-    sex: data.sex
+    sex: data.sex,
+    x: 0,
+    y: 0,
+    angle: 0
    }
    this.users.push(res.data);
    this.broadcast(res);
@@ -141,6 +146,13 @@ class Socket {
    this.broadcast(res);
   }
   if (res.error != 0) this.send(ws, res);
+ }
+
+ getLocations(ws) {
+  const res = { method: 'locations' }
+  res.error = 0;
+  res.data = this.users;
+  this.send(res);
  }
 }
 

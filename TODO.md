@@ -10,11 +10,11 @@
 
 ## Features
 
-- Add network players - new array - select colour, name, sex, enter / exit
+- Add network players on client - select colour, name, sex, enter / exit
 - Chat history - through network (not directly from user)
 - Chat bubble in UI window - through network (not directly from user)
 - Get all players locations when connected
-- Get all players locations each xxx ms
+- Get all players locations every 3 seconds
 - Reconnect when disconnected (after 5 secs)
 - Cube texture with face - something as src/web/cube.webp
 - Change floor texture to seamless grass

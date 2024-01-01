@@ -14,7 +14,8 @@
 - Chat history - through network (not directly from user)
 - Chat bubble in UI window - through network (not directly from user)
 - Get all players locations when connected
-- Get all players locations every 3 seconds
+- Remove all players from scene when disconnected
+- Get all players locations every 3 seconds (when connected)
 - Reconnect when disconnected (after 5 secs)
 - Cube texture with face - something as src/web/cube.webp
 - Change floor texture to seamless grass

@@ -80,10 +80,8 @@ class World {
   this.user = new THREE.Group();
   this.user = this.user.add(cube);
   this.user = this.user.add(hair);
-
   //const name = this.createLabel('Very long user name', this.user.position);
   //this.user.add(name);
-
   this.scene.add(this.user);
  }
 
@@ -114,18 +112,20 @@ class World {
  }
 
  onDocumentClick(event) {
-  event.preventDefault();
-  const raycaster = new THREE.Raycaster();
-  let mouse = new THREE.Vector2();
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-  raycaster.setFromCamera(mouse, this.camera);
-  const intersects = raycaster.intersectObject(this.floor);
-  if (intersects.length > 0) {
-   const point = intersects[0].point;
-   net.send({method: 'move', data: { x: point.x, y: point.z }});
-   this.setUserRotation(point.x, point.z);
-   this.moveUserToPoint(point.x, point.z);
+  if (this.user) {
+   event.preventDefault();
+   const raycaster = new THREE.Raycaster();
+   let mouse = new THREE.Vector2();
+   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+   mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+   raycaster.setFromCamera(mouse, this.camera);
+   const intersects = raycaster.intersectObject(this.floor);
+   if (intersects.length > 0) {
+    const point = intersects[0].point;
+    net.send({method: 'move', data: { x: point.x, y: point.z }});
+    this.setUserRotation(point.x, point.z);
+    this.moveUserToPoint(point.x, point.z);
+   }
   }
  }
 

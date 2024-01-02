@@ -43,6 +43,10 @@ class UI {
   }
  }
 
+ leave() {
+  net.setLeave();
+ }
+
  removeLogin() {
   qs('#login').style.display = 'none';
  }

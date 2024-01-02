@@ -66,7 +66,7 @@ class Socket {
  count() {
   Common.addLog('WS connections: ' + Object.keys(this.connections).length);
   let users = 0;
-  for (const c in this.connections) if (c.user) users++;
+  for (const c in this.connections) if (this.connections[c].user) users++;
   Common.addLog('WS users: ' + users);
  }
 

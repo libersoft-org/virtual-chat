@@ -72,6 +72,10 @@ class Network {
   world.getUser(res.name, res.sex, res.color, res.x, res.y, res.angle);
  }
 
+ setLeave() {
+  this.send({ method: 'leave' });
+ }
+
  getLeave() {
   console.log('GET LEAVE');
  }

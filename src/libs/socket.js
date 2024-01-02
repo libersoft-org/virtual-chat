@@ -88,7 +88,7 @@ class Socket {
   } else if (!'name' in data) {
    res.error = 2;
    res.message = 'Missing name';
-  } else if (!/^[A-Za-z0-9._-]{3,16}$/.test(data.name)) {
+  } else if (!/^[A-Za-z0-9._-]{3,16}$/.test(data.name.trim())) {
    res.error = 3;
    res.message = 'Wrong name format - can contain 3 - 16 characters, only letters, numbers, dot, dash or underscore';
   } else if (!'sex' in data) {
@@ -100,13 +100,13 @@ class Socket {
   } else if (!'color' in data) {
    res.error = 4;
    res.message = 'Missing color';
-  } else if (!Number.isInteger(data.color) || data.color < 1 || data.color > 7) {
+  } else if (!Number.isInteger(data.color) || data.color < 1 || data.color > 8) {
    res.error = 5;
    res.message = 'Wrong color ID';
   } else {
    res.error = 0;
    res.data = {
-    name: data.name,
+    name: data.name.trim(),
     color: data.color,
     sex: data.sex,
     x: 0,

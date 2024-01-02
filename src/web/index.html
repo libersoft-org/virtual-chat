@@ -1,42 +1,45 @@
 <!DOCTYPE html>
-<head>
- <title>Virtual Chat</title>
- <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1" />
- <link rel="stylesheet" href="chat.css" type="text/css" />
- <link rel="shortcut icon" href="favicon.svg" />
-</head>
-<body>
- <script src="https://unpkg.com/three/build/three.min.js"></script>
- <!--<script src="https://unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js"></script>-->
- <script src="js/ui.js"></script>
- <script src="js/world.js"></script>
- <script src="js/network.js"></script>
- <script src="js/chat.js"></script>
- <div id="login" class="form">
-  <div class="logo">Virtual Chat</div>
-  <input id="login-name" type="name" placeholder="Nickname" />
-  <select id="login-sex">
-   <option value="" selected>-- Gender --</option>
-   <option value="1">Male</option>
-   <option value="0">Female</option>
-  </select>
-  <div class="color-picker">
-   <div class="color red"></div>
-   <div class="color orange"></div>
-   <div class="color yellow"></div>
-   <div class="color green"></div>
-   <div class="color blue"></div>
-   <div class="color violet"></div>
+<html>
+ <head>
+  <title>Virtual Chat</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="chat.css" type="text/css" />
+  <link rel="shortcut icon" href="favicon.svg" />
+ </head>
+ <body>
+  <script src="https://unpkg.com/three/build/three.min.js"></script>
+  <!--<script src="https://unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js"></script>-->
+  <script src="js/ui.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/network.js"></script>
+  <script src="js/chat.js"></script>
+  <div id="login" class="form">
+   <div class="logo">Virtual Chat</div>
+   <input id="login-name" type="name" placeholder="Nickname" />
+   <select id="login-sex">
+    <option value="" selected>-- Gender --</option>
+    <option value="1">Male</option>
+    <option value="0">Female</option>
+   </select>
+   <div class="color-picker">
+    <div class="color red active" onclick="ui.setColor(this, 1)"></div>
+    <div class="color orange" onclick="ui.setColor(this, 2)"></div>
+    <div class="color yellow" onclick="ui.setColor(this, 3)"></div>
+    <div class="color green" onclick="ui.setColor(this, 4)"></div>
+    <div class="color blue" onclick="ui.setColor(this, 5)"></div>
+    <div class="color violet" onclick="ui.setColor(this, 6)"></div>
+    <div class="color gray" onclick="ui.setColor(this, 7)"></div>
+    <input id="login-color" type="hidden" value="1">
+   </div>
+   <div id="enter" class="button orange" onclick="ui.enter()">Enter</div>
   </div>
-  <div class="button orange" onclick="net.enter()">Enter</div>
- </div>
- <div id="chat" class="form"></div>
- <input id="message" type="text" placeholder="Enter your message" />
- <div id="leave" class="button" onclick="net.leave()">Leave</div>
- <div id="status">
-  <div class="dot red"></div>
-  <div class="text">Not connected</div>
- </div>
-</body>
+  <div id="chat" class="form"></div>
+  <input id="message" type="text" placeholder="Enter your message" />
+  <div id="leave" class="button" onclick="ui.leave()">Leave</div>
+  <div id="status">
+   <div class="dot red"></div>
+   <div class="text">Not connected</div>
+  </div>
+ </body>
 </html>

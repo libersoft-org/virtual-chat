@@ -10,6 +10,8 @@
 
 ## Features
 
+- Process login errors (show errors in error bar)
+- Measure and cap FPS (no more than 60 fps)
 - Add network players on client - make "Enter" in login form working
 - Make "Leave" button working
 - Chat history - through network (not directly from user)

@@ -1,12 +1,14 @@
 class World {
  constructor() {
   this.scene = new THREE.Scene();
+  this.clock = new THREE.Clock();
+  this.delta = 0;
   this.renderer = new THREE.WebGLRenderer({ antialias: true });
   this.renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(this.renderer.domElement);
   this.getLight();
   this.getFloor();
-  this.getUser(0xFFE0AA);
+  //this.getUser();
   //this.getHelpers();
   this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
   this.camera.position.set(0, 10, 10);
@@ -17,18 +19,19 @@ class World {
   document.addEventListener('click', this.onDocumentClick.bind(this), false);
   //document.addEventListener('mousemove', this.onDocumentMouseMove.bind(this), false);
   this.targetPosition = new THREE.Vector3();
-  this.animate = this.animate.bind(this);
-  this.animate();
+  this.update = this.update.bind(this);
+  this.update();
  }
 
- animate() {
-  requestAnimationFrame(this.animate);
+ update() {
+  requestAnimationFrame(this.update)
+  this.delta = this.clock.getDelta();
   this.moveUser(); // TODO: move only if not standing
   if (this.light.position.x < -10) this.lightDirectionX = true;
   if (this.light.position.x > 10) this.lightDirectionX = false;
   if (this.light.position.z < -5) this.lightDirectionZ = true;
   if (this.light.position.z > 5) this.lightDirectionZ = false;
-  this.light.position.set(this.lightDirectionX ? this.light.position.x + 0.05 : this.light.position.x - 0.05, this.light.position.y,this.lightDirectionZ ? this.light.position.z + 0.05 : this.light.position.z - 0.05,);
+  this.light.position.set(this.lightDirectionX ? this.light.position.x + 0.05 : this.light.position.x - 0.05, this.light.position.y,this.lightDirectionZ ? this.light.position.z + 0.05 : this.light.position.z - 0.05);
   const lightHelper = new THREE.DirectionalLightHelper(this.light, 2);
   this.scene.add(lightHelper);
   this.renderer.render(this.scene, this.camera);
@@ -62,7 +65,7 @@ class World {
   this.scene.add(this.floor);
  }
 
- getUser(color = 0x00FF00) {
+ getUser(name = 'User', color = 1, sex = true, x = 0, y = 0, angle = 0) {
   const cubeTextureLoader = new THREE.CubeTextureLoader();
   cubeTextureLoader.setPath( 'img/' );
   // OLD material: new THREE.MeshPhongMaterial({ color: color })
@@ -120,7 +123,7 @@ class World {
   const intersects = raycaster.intersectObject(this.floor);
   if (intersects.length > 0) {
    const point = intersects[0].point;
-   net.sendMessage({method: 'move', data: { x: point.x, y: point.z }});
+   net.send({method: 'move', data: { x: point.x, y: point.z }});
    this.setUserRotation(point.x, point.z);
    this.moveUserToPoint(point.x, point.z);
   }
@@ -168,13 +171,15 @@ class World {
  }
  
  moveUser() {
-  const speed = 0.1;
-  const dx = this.targetPosition.x - this.user.position.x;
-  const dz = this.targetPosition.z - this.user.position.z;
-  const distance = Math.sqrt(dx * dx + dz * dz);
-  if (distance > 0.1) {
-   this.user.position.x += (dx / distance) * speed;
-   this.user.position.z += (dz / distance) * speed;
+  if (this.user) {
+   const speed = 5;
+   const dx = this.targetPosition.x - this.user.position.x;
+   const dz = this.targetPosition.z - this.user.position.z;
+   const distance = Math.sqrt(dx * dx + dz * dz);
+   if (distance > 0.1) {
+    this.user.position.x += (dx / distance) * speed * this.delta;
+    this.user.position.z += (dz / distance) * speed * this.delta;
+   }
   }
  }
 

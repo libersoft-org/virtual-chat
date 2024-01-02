@@ -15,7 +15,7 @@ class Socket {
 
  onClose(ws, message) {
   Common.addLog('WS connection closed: ' + ws.uuid);
-  if (this.connections[ws.uuid].name) this.exit(ws.uuid);
+  if (this.connections[ws.uuid].name) this.leave(ws.uuid);
   delete this.connections[ws.uuid];
   this.count();
  }
@@ -29,8 +29,8 @@ class Socket {
      case 'enter':
       this.getEnter(ws, msg.data);
       break;
-     case 'exit':
-      this.getExit(ws);
+     case 'leave':
+      this.getLeave(ws);
       break;
      case 'move':
       this.getMove(ws, msg.data);
@@ -42,11 +42,12 @@ class Socket {
       this.getUsers(ws);
       break;
      default:
-      this.send(ws, { error: 3, message: 'Unknown method in command' });
+      this.send(ws, { method: msg.method, error: 3, message: 'Unknown method in command' });
       break;
     }
    } else this.send(ws, { error: 2, message: 'Invalid command' });
   } catch (e) {
+   console.log(e);
    this.send(ws, { error: 1, message: 'Invalid JSON' });
   }
  }
@@ -56,7 +57,10 @@ class Socket {
  }
 
  broadcast(obj) {
-  for (const ws of Object.values(this.connections)) this.send(ws, obj);
+  for (const conn of Object.values(this.connections)) {
+   //console.log(ws);
+   conn.ws.send(JSON.stringify(obj));
+  }
  }
 
  count() {
@@ -66,9 +70,9 @@ class Socket {
   Common.addLog('WS users: ' + users);
  }
 
- exit(uuid) {
+ leave(uuid) {
   this.broadcast({
-   method: 'exit',
+   method: 'leave',
    error: 0,
    data: { uuid: uuid }
   });
@@ -84,21 +88,21 @@ class Socket {
   } else if (!'name' in data) {
    res.error = 2;
    res.message = 'Missing name';
-  } else if (/^[A-Za-z0-9._-]{1,16}$/.test(data.name)) {
+  } else if (!/^[A-Za-z0-9._-]{3,16}$/.test(data.name)) {
    res.error = 3;
    res.message = 'Wrong name format - can contain 3 - 16 characters, only letters, numbers, dot, dash or underscore';
-  } else if (!'color' in data) {
-   res.error = 4;
-   res.message = 'Missing color';
-  } else if (!Number.isInteger(data.color) || number < 1 || number > 6) {
-   res.error = 5;
-   res.message = 'Wrong color ID';
   } else if (!'sex' in data) {
    res.error = 6;
    res.message = 'Missing sex';
-  } else if (data.sex === true || data.sex === false) {
+  } else if (data.sex != true && data.sex != false) {
    res.error = 7;
-   res.message = 'Wrong sex ID';
+   res.message = 'Wrong sex value';
+  } else if (!'color' in data) {
+   res.error = 4;
+   res.message = 'Missing color';
+  } else if (!Number.isInteger(data.color) || data.color < 1 || data.color > 7) {
+   res.error = 5;
+   res.message = 'Wrong color ID';
   } else {
    res.error = 0;
    res.data = {
@@ -116,13 +120,13 @@ class Socket {
   if (res.error != 0) this.send(ws, res);
  }
 
- getExit(ws) {
+ getLeave(ws) {
   if (!this.connections[ws.uuid].user) {
-   res.method = 'exit';
+   res.method = 'leave';
    res.error = 1;
    res.message = 'User is not in room';
    this.send(ws, res);
-  } else this.exit(ws.uuid);
+  } else this.leave(ws.uuid);
  }
 
  getMove(ws, data) {
@@ -152,9 +156,12 @@ class Socket {
   } else if (!'message' in data) {
    res.error = 2;
    res.message = 'Missing message';
+  } else if (data.message.trim() == '') {
+    res.error = 2;
+    res.message = 'Message is empty';
   } else {
    res.error = 0;
-   res.data = { name: this.connections[uuid].user.name, message: data.message }
+   res.data = { name: this.connections[uuid].user.name, message: data.message.trim() }
    this.broadcast(res);
   }
   if (res.error != 0) this.send(ws, res);

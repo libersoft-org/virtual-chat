@@ -36,6 +36,24 @@ input, select {
  cursor: pointer;
 }
 
+.loader {
+ margin: 0 auto;
+ width: 19px;
+ height: 19px;
+ border-radius: 50%;
+ background:
+  radial-gradient(farthest-side, #000 94%, transparent) top/5px 5px no-repeat,
+  conic-gradient(transparent 30%, #000);
+ -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 0);
+ animation: loader 1s infinite linear;
+}
+
+@keyframes loader {
+ 100% {
+  transform: rotate(1turn);
+ }
+}
+
 .bold {
  font-weight: bold;
 }
@@ -71,6 +89,10 @@ input, select {
  background-color: #80F;
 }
 
+.gray {
+ background-color: #888;
+}
+
 #login {
  display: flex;
  flex-direction: column;
@@ -98,10 +120,15 @@ input, select {
 }
 
 #login .color-picker .color {
+ cursor: pointer;
  width: 30px;
  height: 30px;
  border: 1px solid #000;
  border-radius: 5px;
+}
+
+#login .color-picker .color.active {
+ border: 3px solid #000;
 }
 
 #chat {

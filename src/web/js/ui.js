@@ -11,14 +11,18 @@ class UI {
     return;
    }
    if (document.activeElement === message) {
-    const chat = qs('#chat');
-    chat.innerHTML += '<div><span class="bold">User</span>: ' + message.value + '</div>';
-    chat.scrollTop = chat.scrollHeight;
-    world.createChatBubble(message.value);
+    net.setMessage(message.value);
     message.value = '';
     return;
    }
   }
+ }
+
+ showMessage(name, message) {
+  const chat = qs('#chat');
+  chat.innerHTML += '<div><span class="bold">' + name + '</span>: ' + message + '</div>';
+  chat.scrollTop = chat.scrollHeight;
+  world.createChatBubble(message);
  }
 
  setColor(el, id) {

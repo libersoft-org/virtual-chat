@@ -85,9 +85,19 @@ class Network {
   console.log(res);
  }
 
+ setMessage(text) {
+  console.log('SET MESSAGE');
+  console.log(message);
+  this.send({
+   method: 'message',
+   data: { message: text }
+  });
+ }
+
  getMessage(res) {
   console.log('GET MESSAGE');
   console.log(res);
+  ui.showMessage(res.name, res.message);
  }
 
  getUsers(res) {

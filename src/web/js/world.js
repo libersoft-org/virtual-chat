@@ -26,6 +26,7 @@ class World {
  update() {
   requestAnimationFrame(this.update)
   this.delta = this.clock.getDelta();
+  //console.log(1/this.delta);
   this.moveUser(); // TODO: move only if not standing
   if (this.light.position.x < -10) this.lightDirectionX = true;
   if (this.light.position.x > 10) this.lightDirectionX = false;

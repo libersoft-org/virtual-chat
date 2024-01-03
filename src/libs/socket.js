@@ -161,7 +161,7 @@ class Socket {
     res.message = 'Message is empty';
   } else {
    res.error = 0;
-   res.data = { name: this.connections[uuid].user.name, message: data.message.trim() }
+   res.data = { name: this.connections[ws.uuid].user.name, message: data.message.trim() }
    this.broadcast(res);
   }
   if (res.error != 0) this.send(ws, res);

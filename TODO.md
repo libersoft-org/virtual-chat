@@ -10,9 +10,9 @@
 
 ## Features
 
-- Process login errors (show errors in error bar)
-- Add network players on client - make "Enter" in login form working
+- Process login, leave etc. errors (show errors in error bar)
 - Make "Leave" button working
+- Add network players on client - make "Enter" in login form working
 - Chat bubble in UI window - through network (not directly from user)
 - Get all players locations when connected
 - Remove all players from scene when disconnected

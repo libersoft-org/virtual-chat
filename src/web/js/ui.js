@@ -18,6 +18,10 @@ class UI {
   }
  }
 
+ showFPS(fps) {
+  qs('#fps').innerHTML = 'FPS: ' + fps;
+ }
+
  showMessage(name, message) {
   const chat = qs('#chat');
   chat.innerHTML += '<div><span class="bold">' + name + '</span>: ' + message + '</div>';

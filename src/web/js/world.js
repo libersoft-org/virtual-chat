@@ -1,8 +1,7 @@
 class World {
  constructor() {
   this.scene = new THREE.Scene();
-  //this.clock = new THREE.Clock();
-  this.deltaTime = 0;
+    this.deltaTime = 0;
   this.currentTime = 0;
   this.lastTime = Date.now();
   this.frameCount = 0;
@@ -69,9 +68,10 @@ class World {
   const x = 20;
   const y = 10;
   const tl = new THREE.TextureLoader();
-  const floorTexture = tl.load('img/ice.webp');
+  //const floorTexture = tl.load('img/ice.webp');
+  const floorTexture = tl.load('img/grass.jpg');
   floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-  floorTexture.repeat.set(x, y);
+  floorTexture.repeat.set(x / 10, y / 10);
   // OLD material: new THREE.MeshPhongMaterial({ color: 0x20A020, side: THREE.DoubleSide })
   this.floor = new THREE.Mesh(new THREE.PlaneGeometry(x, y), new THREE.MeshPhongMaterial({ map: floorTexture }));
   this.floor.rotation.x = -Math.PI / 2;
@@ -83,11 +83,12 @@ class World {
   cubeTextureLoader.setPath( 'img/' );
   // OLD material: new THREE.MeshPhongMaterial({ color: color })
   const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-  const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, envMap: cubeTextureLoader.load(['1.png', '2.png', '3.png', '4.png', '5.png', '6.png']) });
+  const cubeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF, envMap: cubeTextureLoader.load(['1.png', '2.png', '3.png', '4.png', '5.png', '6.png']) });
+  //const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, envMap: cubeTextureLoader.load(['cube_front.jpg', 'cube_side.jpg', 'cube_side.jpg', 'cube_side.jpg', 'cube_side.jpg', 'cube_side.jpg']) });
   const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
   cube.position.set(0, 0.5, 0);
   const hairGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-  const hairMaterial = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+  const hairMaterial = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
   const hair = new THREE.Mesh(hairGeometry, hairMaterial);
   hair.position.set(0, 1.25, -0.5);
   this.user = new THREE.Group();

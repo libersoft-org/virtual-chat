@@ -1,5 +1,5 @@
 :root {
- --form-bg: #FFFFFFBF;
+ --form-bg: rgba(255, 255, 255, 0.75);
  --form-text: #000;
 }
 
@@ -179,51 +179,38 @@ input, select {
  gap: 10px;
  align-items: center;
  width: calc(100% - 20px);
- background-color: #333333BF;
+ background-color: rgba(50, 50, 50, 0.75);
  color: #FFF;
 }
 
-/* new changes */
-
-/* .chat-bubble{
- 
-
-    padding: 5px 15px;
-    border: 1px solid black;
-    border-radius: 20%;
-    background-color: white;
-}  */
-
 .chat-bubble {
+ font-size: 18px;
+ line-height: 24px;
+ width: 150px;
+ padding: 5px 10px;
+ font-size: 20px;
+ border-radius: 16px;
+ background-color: rgba(255, 255, 255, 0.5);
+ box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
 
-    font-family: sans-serif;
-    font-size: 18px;
-    line-height: 24px;
-    width: 150px;
-    background-color: #fff;
-    padding: 1.125em 1.5em;
-    font-size: 1.25em;
-    border-radius: 1rem;
-    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.3), 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.2);
-  }
-  
-  .chat-bubble:before {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 0;
-    top: 100%; /* Changed from bottom */
-    left: 1.5em;
-    border: 0.75rem solid transparent;
-    border-bottom: none; /* Changed from border-top */
-    border-top-color: #fff; /* Changed from border-bottom-color */
-    filter: drop-shadow(0 -0.0625rem 0.0625rem rgba(0, 0, 0, 0.1));
-  }
- 
-  .name-tag{
-    font-size: 25px;
-    padding: 0.125em 0.5em;
-    background-color: white;
-    border: 1px solid black;
+.chat-bubble:before {
+ position: absolute;
+ width: 0;
+ height: 0;
+ top: 100%;
+ left: 24px;
+ border: 10px solid transparent;
+ border-bottom: none;
+ border-top-color: rgba(255, 255, 255, 0.5);
+ filter: drop-shadow(0 -1px 1px rgba(0, 0, 0, 0.1));
+ content: '';
+}
 
-  }
+.name-tag {
+ font-size: 22px;
+ padding: 5px 10px;
+ border: 1px solid #000;
+ border-radius: 10px;
+ background-color: rgba(255, 255, 255, 0.5);
+}

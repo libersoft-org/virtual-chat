@@ -70,6 +70,7 @@ class Network {
   console.log(res);
   ui.removeLogin();
   world.getUser(res.name, res.sex, res.color, res.x, res.y, res.angle);
+  world.createLabel(res.name, res.x, res.y);
  }
 
  setLeave() {
@@ -92,6 +93,7 @@ class Network {
    method: 'message',
    data: { message: text }
   });
+
  }
 
  getMessage(res) {

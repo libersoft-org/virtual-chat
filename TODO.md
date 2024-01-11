@@ -2,14 +2,12 @@
 
 ## Bugs
 
-- CSS2DRenderer not working (user name above the player - world.js: createLabel)
-- Wrong cube side colours
-- Chat bubbles (not showing bubbles and very narrow text)
-- Auto disconnection in few seconds
-- DirectionalLight shadow is not working
+- Chat bubble appears with delay after 2nd message (probably not seen before the first one disappears)
+- Auto disconnection in few seconds - maybe because of Cloudflare proxy?
 
 ## Features
 
+- Replace grass with this: https://www.texturecan.com/details/182/
 - Process login, leave etc. errors (show errors in error bar)
 - Make "Leave" button working
 - Add network players on client - make "Enter" in login form working

@@ -1,4 +1,4 @@
 #!/bin/sh
 
 #[ ! -d "./node_modules/" ] && bun i
-screen -dmS chat bun --watch chat.js
+screen -dmS virtual-chat bun --watch virtual-chat.js

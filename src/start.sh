@@ -1,4 +1,4 @@
 #!/bin/sh
 
 #[ ! -d "./node_modules/" ] && bun i
-bun chat.js $1
+bun virtual-chat.js $1

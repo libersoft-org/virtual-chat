@@ -55,12 +55,12 @@ server {
 
  location / {
   proxy_set_header X-Real-IP $remote_addr;
-  proxy_pass http://chat;
+  proxy_pass http://virtual-chat;
  }
 }
 
-upstream chat {
- server unix:/run/chat.sock;
+upstream virtual-chat {
+ server unix:/run/virtual-chat.sock;
 }
 ```
 

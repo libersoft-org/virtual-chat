@@ -63,12 +63,12 @@ class App {
     web: {
      standalone: true,
      port: 80,
-     socket_path: '/run/chat.sock',
+     socket_path: '/run/virtual-chat.sock',
      client_path: '../web/'
     },
     other: {
      log_to_file: true,
-     log_file: 'chat.log'
+     log_file: 'virtual-chat.log'
     }
    };
    fs.writeFileSync(Common.appPath + Common.settingsFile, JSON.stringify(settings, null, ' '));

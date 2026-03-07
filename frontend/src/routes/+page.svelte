@@ -11,11 +11,10 @@
 	import LeaveButton from '../components/LeaveButton.svelte';
 	import Alert from '../components/Alert.svelte';
 	import DebugPanel from '../components/DebugPanel.svelte';
-
+	import ExpressionPicker from '../components/ExpressionPicker.svelte';
 	let container: HTMLDivElement;
 	let world: World;
 	let network: Network;
-
 	const wsUrl = import.meta.env['VITE_BACKEND_URL'] || (import.meta.env.DEV ? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:7010` : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
 
 	onMount(() => {
@@ -32,7 +31,7 @@
 				network.sendUsers();
 			},
 			onUserEntered: (data: any) => {
-				world.addOtherPlayer(data.uuid, data.name, data.color, data.x, data.y, data.angle);
+				world.addOtherPlayer(data.uuid, data.name, data.color, data.x, data.y, data.angle, data.expression);
 			},
 			onLeave: (data: any) => {
 				if (data.uuid === network.myUuid) {
@@ -53,9 +52,13 @@
 			onUsers: (data: any) => {
 				for (const entry of data) {
 					if (entry.uuid !== network.myUuid) {
-						world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.color, entry.user.x, entry.user.y, entry.user.angle);
+						world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.color, entry.user.x, entry.user.y, entry.user.angle, entry.user.expression);
 					}
 				}
+			},
+			onExpression: (data: any) => {
+				if (data.user === network.myUuid) world.setExpression(data.expression);
+				else world.setOtherPlayerExpression(data.user, data.expression);
 			},
 		});
 	});
@@ -70,6 +73,10 @@
 
 	function handleSendMessage(text: string) {
 		network.sendMessage(text);
+	}
+
+	function handleExpression(expression: number) {
+		network.sendExpression(expression);
 	}
 </script>
 
@@ -92,6 +99,7 @@
 	<FpsCounter />
 	<MessageInput onsend={handleSendMessage} />
 	<LeaveButton onleave={handleLeave} />
+	<ExpressionPicker onpick={handleExpression} />
 {/if}
 
 <DebugPanel />

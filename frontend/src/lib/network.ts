@@ -18,6 +18,7 @@ const errorMessages: Record<string, string> = {
 	MISSING_MESSAGE: 'Message is required',
 	EMPTY_MESSAGE: 'Message cannot be empty',
 	RATE_LIMITED: 'Too many requests, slow down',
+	WRONG_EXPRESSION: 'Invalid expression',
 };
 
 interface NetworkCallbacks {
@@ -27,6 +28,7 @@ interface NetworkCallbacks {
 	onMove: (data: any) => void;
 	onMessage: (data: any) => void;
 	onUsers: (data: any) => void;
+	onExpression: (data: any) => void;
 }
 
 export class Network {
@@ -64,6 +66,9 @@ export class Network {
 						break;
 					case 'users':
 						this.callbacks.onUsers(res.data);
+						break;
+					case 'expression':
+						this.callbacks.onExpression(res.data);
 						break;
 					default:
 						console.error('Unknown method from server:', res.method);
@@ -111,6 +116,13 @@ export class Network {
 		this.send({
 			method: 'message',
 			data: { message: text },
+		});
+	}
+
+	sendExpression(expression: number) {
+		this.send({
+			method: 'expression',
+			data: { expression },
 		});
 	}
 }

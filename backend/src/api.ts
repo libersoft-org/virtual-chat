@@ -7,6 +7,7 @@ interface UserData {
 	x: number;
 	y: number;
 	angle: number;
+	expression: number;
 }
 
 export class API {
@@ -24,6 +25,7 @@ export class API {
 		move: (uuid, data) => this.getMove(uuid, data),
 		message: (uuid, data) => this.getMessage(uuid, data),
 		users: uuid => this.getUsers(uuid),
+		expression: (uuid, data) => this.getExpression(uuid, data),
 	};
 
 	handle(uuid: string, json: string): void {
@@ -109,6 +111,7 @@ export class API {
 			x: 0,
 			y: 0,
 			angle: 0,
+			expression: 1,
 		};
 		this.count();
 		const enterData = { uuid, ...this.users[uuid] };
@@ -183,5 +186,23 @@ export class API {
 		const users: { uuid: string; user: UserData }[] = [];
 		for (const [id, user] of Object.entries(this.users)) users.push({ uuid: id, user });
 		this.socket.send(uuid, { method: 'users', error: '', data: users });
+	}
+
+	getExpression(uuid: string, data: Record<string, unknown>): void {
+		const user = this.users[uuid];
+		if (!user) {
+			this.socket.send(uuid, { method: 'expression', error: 'NOT_IN_ROOM' });
+			return;
+		}
+		if (!Number.isInteger(data['expression']) || (data['expression'] as number) < 1 || (data['expression'] as number) > 16) {
+			this.socket.send(uuid, { method: 'expression', error: 'WRONG_EXPRESSION' });
+			return;
+		}
+		user.expression = data['expression'] as number;
+		this.socket.broadcastToUsers({
+			method: 'expression',
+			error: '',
+			data: { user: uuid, expression: user.expression },
+		});
 	}
 }

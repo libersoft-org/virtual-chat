@@ -140,24 +140,53 @@ export class World {
 		if (this.floor) this.floor.rotation.x = value;
 	}
 
+	static colorMap: Record<number, number> = {
+		1: 0xff0000, // red
+		2: 0xff8800, // orange
+		3: 0xffff00, // yellow
+		4: 0x00cc00, // green
+		5: 0x0000ff, // blue
+		6: 0x9900ff, // violet
+		7: 0x888888, // gray
+		8: 0xffffff, // white
+	};
+
 	getUser(_name = 'User', _color = 1, _sex = true, _x = 0, _y = 0, _angle = 0) {
+		const baseColor = World.colorMap[_color] ?? 0xff0000;
 		const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-		const cubeMaterials = [new THREE.MeshBasicMaterial({ color: 0xff0000 }), new THREE.MeshBasicMaterial({ color: 0x00ff00 }), new THREE.MeshBasicMaterial({ color: 0x0000ff }), new THREE.MeshBasicMaterial({ color: 0xffff00 }), new THREE.MeshBasicMaterial({ color: 0xff00ff }), new THREE.MeshBasicMaterial({ color: 0x00ffff })];
-		const hairMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+		const baseMaterial = new THREE.MeshStandardMaterial({ color: baseColor });
+		const faceMaterial = this.createFaceMaterial(baseColor);
+		// Three.js face order: +X, -X, +Y, -Y, +Z, -Z (front = direction of movement)
+		const cubeMaterials = [baseMaterial, baseMaterial, baseMaterial, baseMaterial, baseMaterial, faceMaterial];
 		const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
 		cube.position.set(0, 0.5, 0);
-
-		const hairGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-		const hair = new THREE.Mesh(hairGeometry, hairMaterial);
-		hair.position.set(0, 1.25, -0.5);
-		hair.castShadow = true;
 		cube.castShadow = true;
 
 		this.user = new THREE.Group();
 		this.user.add(cube);
-		this.user.add(hair);
 		this.scene.add(this.user);
 		this.targetPosition.set(0, 0, 0);
+	}
+
+	createFaceMaterial(color: number): THREE.MeshStandardMaterial {
+		const size = 256;
+		const canvas = document.createElement('canvas');
+		canvas.width = size;
+		canvas.height = size;
+		const ctx = canvas.getContext('2d')!;
+		const hex = '#' + color.toString(16).padStart(6, '0');
+		ctx.fillStyle = hex;
+		ctx.fillRect(0, 0, size, size);
+		const texture = new THREE.CanvasTexture(canvas);
+		texture.colorSpace = THREE.SRGBColorSpace;
+		const material = new THREE.MeshStandardMaterial({ map: texture });
+		const img = new Image();
+		img.src = 'img/face.png';
+		img.onload = () => {
+			ctx.drawImage(img, 0, 0, size, size);
+			texture.needsUpdate = true;
+		};
+		return material;
 	}
 
 	onWindowResize() {
@@ -287,11 +316,14 @@ export class World {
 		this.otherPlayers.clear();
 	}
 
-	addOtherPlayer(uuid: string, name: string, x: number, y: number, angle: number) {
+	addOtherPlayer(uuid: string, name: string, color: number, x: number, y: number, angle: number) {
 		if (this.otherPlayers.has(uuid)) return;
+		const baseColor = World.colorMap[color] ?? 0x888888;
 		const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-		const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x888888 });
-		const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+		const baseMaterial = new THREE.MeshStandardMaterial({ color: baseColor });
+		const faceMaterial = this.createFaceMaterial(baseColor);
+		const cubeMaterials = [baseMaterial, baseMaterial, baseMaterial, baseMaterial, baseMaterial, faceMaterial];
+		const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
 		cube.position.set(0, 0.5, 0);
 		cube.castShadow = true;
 		const group = new THREE.Group();

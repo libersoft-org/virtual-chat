@@ -27,12 +27,12 @@
 			onEnter: (data: any) => {
 				network.myUuid = data.uuid;
 				isLoggedIn.set(true);
-				world.getUser(data.name, data.sex, data.color, data.x, data.y, data.angle);
+				world.getUser(data.name, data.color, data.sex, data.x, data.y, data.angle);
 				world.createLabel(data.name);
 				network.sendUsers();
 			},
 			onUserEntered: (data: any) => {
-				world.addOtherPlayer(data.uuid, data.name, data.x, data.y, data.angle);
+				world.addOtherPlayer(data.uuid, data.name, data.color, data.x, data.y, data.angle);
 			},
 			onLeave: (data: any) => {
 				if (data.uuid === network.myUuid) {
@@ -53,7 +53,7 @@
 			onUsers: (data: any) => {
 				for (const entry of data) {
 					if (entry.uuid !== network.myUuid) {
-						world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.x, entry.user.y, entry.user.angle);
+						world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.color, entry.user.x, entry.user.y, entry.user.angle);
 					}
 				}
 			},

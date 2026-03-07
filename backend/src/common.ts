@@ -29,7 +29,7 @@ interface Settings {
 }
 
 export class Common {
-	static appName = 'Virtual Chat';
+	static appName = 'Virtual chat';
 	static appVersion = '1.00';
 	static settingsFile = 'settings.json';
 	static appPath: string = dirname(Bun.main) + '/';

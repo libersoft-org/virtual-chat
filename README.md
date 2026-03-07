@@ -1,8 +1,7 @@
 # Virtual Chat
 
-[![Created Badge](https://badges.pufler.dev/created/libersoft-org/virtual-chat)](https://badges.pufler.dev) [![Updated Badge](https://badges.pufler.dev/updated/libersoft-org/virtual-chat)](https://badges.pufler.dev) [![Visits Badge](https://badges.pufler.dev/visits/libersoft-org/virtual-chat)](https://badges.pufler.dev)
-
 ## Table of contents
+
 - [**About**](#about)
 - [**Development state**](#development-state)
 - [**Installation**](#installation)
@@ -17,7 +16,7 @@
 **Virtual Chat** is a simple virtual world web application, where users can control their character and chat with other people. It is written in:
 
 - **Backend**: [**Bun**](https://bun.sh/)
-- **Frontend**: [**Svelte**](https://svelte.dev/) + [**Three.js**](https://threejs.org/) + [**Vite**](https://vite.dev/)
+- **Frontend**: [**Svelte**](https://svelte.dev/) + [**Three.js**](https://threejs.org/)
 
 ## Development state
 
@@ -28,6 +27,7 @@
 - For installation instructions follow the [**INSTALL.md**](./INSTALL.md) document.
 
 ## Screenshot
+
 <p align="center">
  <img src="./screenshot.webp" alt="Virtual Chat" />
 </p>

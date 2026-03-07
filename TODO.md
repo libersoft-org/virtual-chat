@@ -7,6 +7,7 @@
 
 ## Features
 
+- Add server address in initial form
 - Use mapping for ground (now it's only texture with no mapping): https://www.texturecan.com/details/182/
 - Process login, leave etc. errors (show errors in error bar)
 - Make "Leave" button working

@@ -159,6 +159,7 @@ export class World {
 		this.user.add(cube);
 		this.user.add(hair);
 		this.scene.add(this.user);
+		this.targetPosition.set(0, 0, 0);
 	}
 
 	onWindowResize() {
@@ -254,6 +255,21 @@ export class World {
 		this.scene.add(nameTag2DObject);
 		nameTag2DObject.position.set(this.user.position.x, this.user.position.y - 1, this.user.position.z);
 		this.labelObject = nameTag2DObject;
+	}
+
+	removeUser() {
+		if (this.user) {
+			this.scene.remove(this.user);
+			this.user = undefined;
+		}
+		if (this.labelObject) {
+			this.scene.remove(this.labelObject);
+			this.labelObject = undefined;
+		}
+		for (const bubble of this.chatBubbles) {
+			this.scene.remove(bubble.obj);
+		}
+		this.chatBubbles = [];
 	}
 
 	createChatBubble(message: string) {

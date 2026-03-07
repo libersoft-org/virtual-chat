@@ -33,6 +33,8 @@
 			},
 			onLeave: (data: any) => {
 				console.log('User left:', data);
+				world.removeUser();
+				isLoggedIn.set(false);
 			},
 			onMove: (data: any) => {
 				console.log('Move:', data);

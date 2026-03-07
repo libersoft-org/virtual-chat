@@ -68,7 +68,7 @@ export class Network {
 	}
 
 	sendLeave() {
-		this.send({ method: 'leave' });
+		this.send({ method: 'leave', data: {} });
 	}
 
 	sendMove(x: number, y: number) {

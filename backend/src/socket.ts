@@ -30,7 +30,7 @@ export class Socket {
 	onClose(ws: ServerWebSocket<{ uuid: string }>): void {
 		const uuid = ws.data.uuid;
 		Common.addLog("WS connection closed: " + uuid);
-		if (this.connections[uuid]?.name) this.leave(uuid);
+		if (this.connections[uuid]?.user) this.leave(uuid);
 		delete this.connections[uuid];
 		this.count();
 	}

@@ -1,4 +1,4 @@
-import { connectionStatus } from './stores';
+import { connectionStatus, alerts } from './stores';
 
 interface NetworkCallbacks {
 	onEnter: (data: any) => void;
@@ -12,7 +12,7 @@ interface NetworkCallbacks {
 export class Network {
 	ws: WebSocket;
 	callbacks: NetworkCallbacks;
-	myUuid?: string;
+	myUuid: string | undefined;
 
 	constructor(url: string, callbacks: NetworkCallbacks) {
 		this.callbacks = callbacks;
@@ -48,7 +48,7 @@ export class Network {
 						console.error('Unknown method from server:', res.method);
 				}
 			} else {
-				console.error('Server error:', res.method, res.error, res.message);
+				alerts.add(res.message || 'Unknown error');
 			}
 		};
 

@@ -9,13 +9,14 @@
 	import StatusBar from '../components/StatusBar.svelte';
 	import FpsCounter from '../components/FpsCounter.svelte';
 	import LeaveButton from '../components/LeaveButton.svelte';
+	import Alert from '../components/Alert.svelte';
 	import DebugPanel from '../components/DebugPanel.svelte';
 
 	let container: HTMLDivElement;
 	let world: World;
 	let network: Network;
 
-	const wsUrl = import.meta.env.VITE_BACKEND_URL
+	const wsUrl = import.meta.env['VITE_BACKEND_URL']
 		|| (import.meta.env.DEV
 			? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:7010`
 			: `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
@@ -88,6 +89,7 @@
 {/if}
 
 <StatusBar />
+<Alert />
 
 <style>
 	#world-container {

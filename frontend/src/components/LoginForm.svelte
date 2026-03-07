@@ -1,12 +1,18 @@
 <script lang="ts">
  const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'violet', 'gray', 'white'];
 
+ import { alerts } from '$lib/stores';
+
  let { onenter }: { onenter: (name: string, sex: boolean | null, color: number) => void } = $props();
 
  let name = $state('');
  let sex = $state('');
  let color = $state(1);
  let loading = $state(false);
+
+ alerts.subscribe((items) => {
+  if (items.length > 0) loading = false;
+ });
 
  function setColor(id: number) {
   color = id;

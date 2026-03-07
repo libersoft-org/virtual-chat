@@ -10,16 +10,16 @@ class App {
 		while (i < args.length) {
 			switch (args[i]) {
 				case "--privkey":
-					this.privkey = args[++i];
+					this.privkey = args[++i]!;
 					break;
 				case "--pubkey":
-					this.pubkey = args[++i];
+					this.pubkey = args[++i]!;
 					break;
 				case "--port":
 					this.port = parseInt(args[++i]!, 10);
 					break;
 				case "--host":
-					this.host = args[++i];
+					this.host = args[++i]!;
 					break;
 				case "--secure":
 					this.secure = true;

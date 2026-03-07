@@ -1,6 +1,9 @@
-import * as THREE from 'three';
-import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-import { fpsValue } from './stores';
+import * as THREE from "three";
+import {
+	CSS2DRenderer,
+	CSS2DObject,
+} from "three/addons/renderers/CSS2DRenderer.js";
+import { fpsValue } from "./stores";
 
 export class World {
 	container: HTMLElement;
@@ -18,11 +21,14 @@ export class World {
 	lightDirectionZ = false;
 	lightHelper!: THREE.DirectionalLightHelper;
 	floor!: THREE.Mesh;
-	user?: THREE.Group;
+	user: THREE.Group | undefined;
 	targetPosition: THREE.Vector3;
-	labelObject?: CSS2DObject;
+	labelObject: CSS2DObject | undefined;
 	chatBubbles: { obj: CSS2DObject; user: THREE.Group }[] = [];
-	otherPlayers: Map<string, { group: THREE.Group; label: CSS2DObject }> = new Map();
+	otherPlayers: Map<
+		string,
+		{ group: THREE.Group; label: CSS2DObject; target: THREE.Vector3 }
+	> = new Map();
 
 	constructor(container: HTMLElement, onMove: (x: number, y: number) => void) {
 		this.container = container;
@@ -40,20 +46,25 @@ export class World {
 		this.getLight();
 		this.getFloor();
 
-		this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+		this.camera = new THREE.PerspectiveCamera(
+			50,
+			window.innerWidth / window.innerHeight,
+			0.1,
+			1000,
+		);
 		this.camera.position.set(0, 10, 10);
 		this.camera.lookAt(this.scene.position);
 
-		window.addEventListener('resize', this.onWindowResize.bind(this), false);
-		document.addEventListener('wheel', this.onDocumentWheel.bind(this), false);
-		document.addEventListener('click', this.onDocumentClick.bind(this), false);
+		window.addEventListener("resize", this.onWindowResize.bind(this), false);
+		document.addEventListener("wheel", this.onDocumentWheel.bind(this), false);
+		document.addEventListener("click", this.onDocumentClick.bind(this), false);
 
 		this.targetPosition = new THREE.Vector3();
 
 		this.css2dRenderer = new CSS2DRenderer();
 		this.css2dRenderer.setSize(window.innerWidth, window.innerHeight);
-		this.css2dRenderer.domElement.style.position = 'absolute';
-		this.css2dRenderer.domElement.style.top = '0px';
+		this.css2dRenderer.domElement.style.position = "absolute";
+		this.css2dRenderer.domElement.style.top = "0px";
 		container.appendChild(this.css2dRenderer.domElement);
 
 		this.update = this.update.bind(this);
@@ -71,9 +82,13 @@ export class World {
 
 		const speed = 3 * (this.deltaTime / 1000);
 		this.light.position.set(
-			this.lightDirectionX ? this.light.position.x + speed : this.light.position.x - speed,
+			this.lightDirectionX
+				? this.light.position.x + speed
+				: this.light.position.x - speed,
 			this.light.position.y,
-			this.lightDirectionZ ? this.light.position.z + speed : this.light.position.z - speed
+			this.lightDirectionZ
+				? this.light.position.z + speed
+				: this.light.position.z - speed,
 		);
 
 		this.lightHelper.update();
@@ -102,7 +117,7 @@ export class World {
 	}
 
 	getLight() {
-		this.light = new THREE.DirectionalLight(0xFFFFFF, 1.4);
+		this.light = new THREE.DirectionalLight(0xffffff, 1.4);
 		this.light.position.set(0, 5, 0);
 		this.light.castShadow = true;
 		this.light.shadow.mapSize.width = 1024;
@@ -118,7 +133,9 @@ export class World {
 		const x = 20;
 		const y = 10;
 		const textureLoader = new THREE.TextureLoader();
-		const floorColorTexture = textureLoader.load('img/ground_0014_color_4k.jpg');
+		const floorColorTexture = textureLoader.load(
+			"img/ground_0014_color_4k.jpg",
+		);
 		floorColorTexture.colorSpace = THREE.SRGBColorSpace;
 
 		const floorMaterial = new THREE.MeshStandardMaterial({
@@ -136,7 +153,7 @@ export class World {
 		if (this.floor) this.floor.rotation.x = value;
 	}
 
-	getUser(_name = 'User', _color = 1, _sex = true, _x = 0, _y = 0, _angle = 0) {
+	getUser(_name = "User", _color = 1, _sex = true, _x = 0, _y = 0, _angle = 0) {
 		const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
 		const cubeMaterials = [
 			new THREE.MeshBasicMaterial({ color: 0xff0000 }),
@@ -144,9 +161,9 @@ export class World {
 			new THREE.MeshBasicMaterial({ color: 0x0000ff }),
 			new THREE.MeshBasicMaterial({ color: 0xffff00 }),
 			new THREE.MeshBasicMaterial({ color: 0xff00ff }),
-			new THREE.MeshBasicMaterial({ color: 0x00ffff })
+			new THREE.MeshBasicMaterial({ color: 0x00ffff }),
 		];
-		const hairMaterial = new THREE.MeshStandardMaterial({ color: 0xFF0000 });
+		const hairMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 		const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
 		cube.position.set(0, 0.5, 0);
 
@@ -198,25 +215,41 @@ export class World {
 	createDotAtPoint(x: number, y: number) {
 		const dot = new THREE.Mesh(
 			new THREE.CircleGeometry(0.1, 10),
-			new THREE.MeshBasicMaterial({ color: 0xFF0000 })
+			new THREE.MeshBasicMaterial({ color: 0xff0000 }),
 		);
 		dot.position.set(x, 0, y);
 		dot.rotation.x = -Math.PI / 2;
 		this.scene.add(dot);
-		setTimeout(() => { this.scene.remove(dot); }, 2000);
+		setTimeout(() => {
+			this.scene.remove(dot);
+		}, 2000);
 	}
 
 	setUserRotation(x: number, y: number) {
 		if (!this.user) return;
 		this.createDotAtPoint(this.user.position.x, this.user.position.z);
 		this.createDotAtPoint(x, y);
-		const direction = new THREE.Vector3(x - this.user.position.x, 0, y - this.user.position.z);
+		const direction = new THREE.Vector3(
+			x - this.user.position.x,
+			0,
+			y - this.user.position.z,
+		);
 		direction.normalize();
-		const distance = new THREE.Vector3(this.user.position.x, 0, this.user.position.z)
-			.distanceTo(new THREE.Vector3(x, 0, y));
-		const arrowHelper = new THREE.ArrowHelper(direction, this.user.position.clone(), distance, 0xFF0000);
+		const distance = new THREE.Vector3(
+			this.user.position.x,
+			0,
+			this.user.position.z,
+		).distanceTo(new THREE.Vector3(x, 0, y));
+		const arrowHelper = new THREE.ArrowHelper(
+			direction,
+			this.user.position.clone(),
+			distance,
+			0xff0000,
+		);
 		this.scene.add(arrowHelper);
-		setTimeout(() => { this.scene.remove(arrowHelper); }, 2000);
+		setTimeout(() => {
+			this.scene.remove(arrowHelper);
+		}, 2000);
 		this.user.rotation.y = Math.atan2(-direction.x, -direction.z);
 	}
 
@@ -226,35 +259,65 @@ export class World {
 	}
 
 	moveUser() {
+		const speed = 5;
 		if (this.user) {
-			const speed = 5;
 			const dx = this.targetPosition.x - this.user.position.x;
 			const dz = this.targetPosition.z - this.user.position.z;
 			const distance = Math.sqrt(dx * dx + dz * dz);
 			if (distance > 0.1) {
-				this.user.position.x += (dx / distance) * speed * (this.deltaTime / 1000);
-				this.user.position.z += (dz / distance) * speed * (this.deltaTime / 1000);
+				this.user.position.x +=
+					(dx / distance) * speed * (this.deltaTime / 1000);
+				this.user.position.z +=
+					(dz / distance) * speed * (this.deltaTime / 1000);
 			}
+		}
+		for (const [, player] of this.otherPlayers) {
+			const dx = player.target.x - player.group.position.x;
+			const dz = player.target.z - player.group.position.z;
+			const distance = Math.sqrt(dx * dx + dz * dz);
+			if (distance > 0.1) {
+				player.group.position.x +=
+					(dx / distance) * speed * (this.deltaTime / 1000);
+				player.group.position.z +=
+					(dz / distance) * speed * (this.deltaTime / 1000);
+			}
+			player.label.position.set(
+				player.group.position.x,
+				player.group.position.y - 1,
+				player.group.position.z,
+			);
 		}
 	}
 
 	updateOverlays() {
 		if (this.user && this.labelObject) {
-			this.labelObject.position.set(this.user.position.x, this.user.position.y - 1, this.user.position.z);
+			this.labelObject.position.set(
+				this.user.position.x,
+				this.user.position.y - 1,
+				this.user.position.z,
+			);
 		}
 		for (const bubble of this.chatBubbles) {
-			bubble.obj.position.set(bubble.user.position.x + 0.2, bubble.user.position.y + 2, bubble.user.position.z);
+			bubble.obj.position.set(
+				bubble.user.position.x + 0.2,
+				bubble.user.position.y + 2,
+				bubble.user.position.z,
+			);
 		}
 	}
 
 	createLabel(name: string) {
 		if (!this.user) return;
-		const nameTagSpan = document.createElement('span');
+		const nameTagSpan = document.createElement("span");
 		nameTagSpan.textContent = name;
-		nameTagSpan.classList.add('name-tag');
+		nameTagSpan.classList.add("name-tag");
 		const nameTag2DObject = new CSS2DObject(nameTagSpan);
 		this.scene.add(nameTag2DObject);
-		nameTag2DObject.position.set(this.user.position.x, this.user.position.y - 1, this.user.position.z);
+		nameTag2DObject.position.set(
+			this.user.position.x,
+			this.user.position.y - 1,
+			this.user.position.z,
+		);
 		this.labelObject = nameTag2DObject;
 	}
 
@@ -290,14 +353,15 @@ export class World {
 		group.position.set(x, 0, y);
 		this.scene.add(group);
 
-		const nameTagSpan = document.createElement('span');
+		const nameTagSpan = document.createElement("span");
 		nameTagSpan.textContent = name;
-		nameTagSpan.classList.add('name-tag');
+		nameTagSpan.classList.add("name-tag");
 		const label = new CSS2DObject(nameTagSpan);
 		label.position.set(x, -1, y);
 		this.scene.add(label);
 
-		this.otherPlayers.set(uuid, { group, label });
+		const target = new THREE.Vector3(x, 0, y);
+		this.otherPlayers.set(uuid, { group, label, target });
 	}
 
 	removeOtherPlayer(uuid: string) {
@@ -311,21 +375,20 @@ export class World {
 	moveOtherPlayer(uuid: string, x: number, y: number) {
 		const player = this.otherPlayers.get(uuid);
 		if (!player) return;
-		player.group.position.set(x, 0, y);
-		player.label.position.set(x, -1, y);
+		player.target.set(x, 0, y);
 	}
 
 	createChatBubble(message: string) {
 		if (!this.user) return;
 		// Remove existing bubble for this user
-		const existing = this.chatBubbles.find(b => b.user === this.user);
+		const existing = this.chatBubbles.find((b) => b.user === this.user);
 		if (existing) {
 			this.scene.remove(existing.obj);
-			this.chatBubbles = this.chatBubbles.filter(b => b !== existing);
+			this.chatBubbles = this.chatBubbles.filter((b) => b !== existing);
 		}
-		const chatBubbleP = document.createElement('p');
+		const chatBubbleP = document.createElement("p");
 		chatBubbleP.textContent = message;
-		chatBubbleP.classList.add('chat-bubble');
+		chatBubbleP.classList.add("chat-bubble");
 		const chatBubble2DObject = new CSS2DObject(chatBubbleP);
 		chatBubble2DObject.center.set(0.5, 1);
 		this.scene.add(chatBubble2DObject);
@@ -333,7 +396,7 @@ export class World {
 		this.chatBubbles.push(entry);
 		setTimeout(() => {
 			this.scene.remove(chatBubble2DObject);
-			this.chatBubbles = this.chatBubbles.filter(b => b !== entry);
+			this.chatBubbles = this.chatBubbles.filter((b) => b !== entry);
 		}, 7000);
 	}
 }

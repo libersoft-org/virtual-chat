@@ -12,7 +12,7 @@
 			if (message.trim()) {
 				onsend(message);
 				message = '';
-			}
+			} else inputEl.blur();
 		}
 	}
 </script>

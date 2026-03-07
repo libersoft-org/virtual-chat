@@ -22,8 +22,8 @@
 			: `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
 
 	onMount(() => {
-		world = new World(container, (x: number, y: number) => {
-			network.sendMove(x, y);
+		world = new World(container, (x: number, y: number, angle: number) => {
+			network.sendMove(x, y, angle);
 		});
 
 		network = new Network(wsUrl, {
@@ -35,7 +35,7 @@
 				network.sendUsers();
 			},
 			onUserEntered: (data: any) => {
-				world.addOtherPlayer(data.uuid, data.name, data.x, data.y);
+				world.addOtherPlayer(data.uuid, data.name, data.x, data.y, data.angle);
 			},
 			onLeave: (data: any) => {
 				if (data.uuid === network.myUuid) {
@@ -47,7 +47,7 @@
 				}
 			},
 			onMove: (data: any) => {
-				world.moveOtherPlayer(data.user, data.x, data.y);
+				world.moveOtherPlayer(data.user, data.x, data.y, data.angle);
 			},
 			onMessage: (data: any) => {
 				chatMessages.update((msgs) => [...msgs, { name: data.name, message: data.message }]);
@@ -56,7 +56,7 @@
 			onUsers: (data: any) => {
 				for (const entry of data) {
 					if (entry.uuid !== network.myUuid) {
-						world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.x, entry.user.y);
+						world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.x, entry.user.y, entry.user.angle);
 					}
 				}
 			}

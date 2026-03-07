@@ -13,7 +13,6 @@ interface UserData {
 interface Connection {
 	ws: ServerWebSocket<{ uuid: string }>;
 	user?: UserData;
-	name?: string;
 }
 
 export class Socket {
@@ -39,7 +38,7 @@ export class Socket {
 		const uuid = ws.data.uuid;
 		try {
 			const msg = JSON.parse(String(json));
-			console.log(uuid, msg);
+			Common.addLog(`WS message from ${uuid}: ${JSON.stringify(msg)}`);
 			if ("method" in msg && "data" in msg) {
 				switch (msg.method) {
 					case "enter":
@@ -69,7 +68,7 @@ export class Socket {
 				this.send(uuid, { error: 2, message: "Invalid command" });
 			}
 		} catch (e) {
-			console.log(e);
+			Common.addLog(`WS invalid JSON from ${uuid}: ${e}`, 2);
 			this.send(uuid, { error: 1, message: "Invalid JSON" });
 		}
 	}
@@ -183,7 +182,7 @@ export class Socket {
 		} else if (!("x" in data) || !("y" in data)) {
 			res.error = 2;
 			res.message = "Missing coordinates";
-		} else if (typeof data.x !== "number" || typeof data.y !== "number") {
+		} else if (typeof data.x !== "number" || typeof data.y !== "number" || typeof data.angle !== "number") {
 			res.error = 2;
 			res.message = "Invalid coordinates";
 		} else if (data.x < -10 || data.x > 10 || data.y < -5 || data.y > 5) {
@@ -192,8 +191,9 @@ export class Socket {
 		} else {
 			conn.user.x = data.x;
 			conn.user.y = data.y;
+			conn.user.angle = data.angle;
 			res.error = 0;
-			res.data = { user: uuid, x: data.x, y: data.y };
+			res.data = { user: uuid, x: data.x, y: data.y, angle: data.angle };
 			this.broadcast(res);
 		}
 		if (res.error !== 0) this.send(uuid, res);

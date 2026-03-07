@@ -7,7 +7,7 @@ import { fpsValue } from "./stores";
 
 export class World {
 	container: HTMLElement;
-	onMove: (x: number, y: number) => void;
+	onMove: (x: number, y: number, angle: number) => void;
 	scene: THREE.Scene;
 	deltaTime = 0;
 	currentTime = 0;
@@ -27,10 +27,10 @@ export class World {
 	chatBubbles: { obj: CSS2DObject; user: THREE.Group }[] = [];
 	otherPlayers: Map<
 		string,
-		{ group: THREE.Group; label: CSS2DObject; target: THREE.Vector3 }
+		{ group: THREE.Group; label: CSS2DObject; target: THREE.Vector3; targetAngle: number }
 	> = new Map();
 
-	constructor(container: HTMLElement, onMove: (x: number, y: number) => void) {
+	constructor(container: HTMLElement, onMove: (x: number, y: number, angle: number) => void) {
 		this.container = container;
 		this.onMove = onMove;
 		this.scene = new THREE.Scene();
@@ -205,8 +205,8 @@ export class World {
 			const intersects = raycaster.intersectObject(this.floor);
 			if (intersects.length > 0) {
 				const point = intersects[0]!.point;
-				this.onMove(point.x, point.z);
 				this.setUserRotation(point.x, point.z);
+				this.onMove(point.x, point.z, this.user!.rotation.y);
 				this.moveUserToPoint(point.x, point.z);
 			}
 		}
@@ -281,6 +281,7 @@ export class World {
 				player.group.position.z +=
 					(dz / distance) * speed * (this.deltaTime / 1000);
 			}
+			player.group.rotation.y = player.targetAngle;
 			player.label.position.set(
 				player.group.position.x,
 				player.group.position.y - 1,
@@ -341,7 +342,7 @@ export class World {
 		this.otherPlayers.clear();
 	}
 
-	addOtherPlayer(uuid: string, name: string, x: number, y: number) {
+	addOtherPlayer(uuid: string, name: string, x: number, y: number, angle: number) {
 		if (this.otherPlayers.has(uuid)) return;
 		const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
 		const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x888888 });
@@ -351,6 +352,7 @@ export class World {
 		const group = new THREE.Group();
 		group.add(cube);
 		group.position.set(x, 0, y);
+		group.rotation.y = angle;
 		this.scene.add(group);
 
 		const nameTagSpan = document.createElement("span");
@@ -361,7 +363,7 @@ export class World {
 		this.scene.add(label);
 
 		const target = new THREE.Vector3(x, 0, y);
-		this.otherPlayers.set(uuid, { group, label, target });
+		this.otherPlayers.set(uuid, { group, label, target, targetAngle: angle });
 	}
 
 	removeOtherPlayer(uuid: string) {
@@ -372,10 +374,11 @@ export class World {
 		this.otherPlayers.delete(uuid);
 	}
 
-	moveOtherPlayer(uuid: string, x: number, y: number) {
+	moveOtherPlayer(uuid: string, x: number, y: number, angle: number) {
 		const player = this.otherPlayers.get(uuid);
 		if (!player) return;
 		player.target.set(x, 0, y);
+		player.targetAngle = angle;
 	}
 
 	createChatBubble(message: string) {

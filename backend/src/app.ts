@@ -15,9 +15,15 @@ class App {
 				case "--pubkey":
 					this.pubkey = args[++i]!;
 					break;
-				case "--port":
-					this.port = parseInt(args[++i]!, 10);
+				case "--port": {
+					const port = parseInt(args[++i]!, 10);
+					if (isNaN(port) || port < 1 || port > 65535) {
+						Common.addLog("Invalid port number", 2);
+						process.exit(1);
+					}
+					this.port = port;
 					break;
+				}
 				case "--host":
 					this.host = args[++i]!;
 					break;
@@ -106,6 +112,7 @@ class App {
 			const settings = {
 				web: {
 					port: 7010,
+					hostname: "0.0.0.0",
 					secure: false,
 					privkey: "",
 					pubkey: "",

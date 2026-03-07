@@ -186,6 +186,7 @@ export class World {
 	}
 
 	onDocumentWheel(event: WheelEvent) {
+		if (event.target !== this.renderer.domElement) return;
 		event.preventDefault();
 		this.camera.zoom += event.deltaY * -0.001;
 		this.camera.zoom = Math.max(Math.min(this.camera.zoom, 3), 0.5);

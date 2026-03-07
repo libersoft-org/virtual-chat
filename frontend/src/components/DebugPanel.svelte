@@ -1,10 +1,8 @@
 <script lang="ts">
-	import type { World } from '../lib/world.ts';
 	import { netLog, type NetLogItem } from '$lib/stores';
-	let { world }: { world: World } = $props();
 	let items: NetLogItem[] = $state([]);
 	let open = $state(false);
-	let logEl: HTMLDivElement;
+	let logEl: HTMLDivElement = $state() as HTMLDivElement;
 	netLog.subscribe(v => {
 		items = v;
 		if (logEl) setTimeout(() => (logEl.scrollTop = logEl.scrollHeight), 0);
@@ -33,6 +31,13 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		background: none;
+		border: none;
+		color: var(--form-text);
+		font-size: inherit;
+		font-family: inherit;
+		width: 100%;
+		text-align: left;
 	}
 
 	.content {
@@ -57,9 +62,15 @@
 		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 	}
 
-	.out { color: #0055cc; }
-	.in { color: #008800; }
-	.time { color: #666; }
+	.out {
+		color: #0055cc;
+	}
+	.in {
+		color: #008800;
+	}
+	.time {
+		color: #666;
+	}
 
 	.toolbar {
 		padding: 6px 8px;
@@ -80,9 +91,9 @@
 </style>
 
 <div class="panel">
-	<div class="header" onclick={() => (open = !open)}>
-		<span>{open ? '▼' : '▶'} Network log ({items.length})</span>
-	</div>
+	<button class="header" onclick={() => (open = !open)}>
+		{open ? '▼' : '▶'} Network log ({items.length})
+	</button>
 
 	{#if open}
 		<div class="content">

@@ -10,6 +10,10 @@ interface Settings {
 		privkey?: string;
 		pubkey?: string;
 	};
+	limits?: {
+		moves_per_second?: number;
+		messages_per_second?: number;
+	};
 	other: {
 		log_to_file: boolean;
 		log_file: string;

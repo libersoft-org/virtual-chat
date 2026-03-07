@@ -6,7 +6,7 @@ class App {
 	async run() {
 		const args = process.argv.slice(2);
 		let i = 0;
-		let command: string | undefined;
+		let help = false;
 		while (i < args.length) {
 			switch (args[i]) {
 				case '--privkey':
@@ -30,27 +30,18 @@ class App {
 				case '--secure':
 					this.secure = true;
 					break;
-				case '--create-settings':
-					command = 'create-settings';
-					break;
 				case '--help':
-					command = 'help';
+					help = true;
 					break;
 				default:
 					break;
 			}
 			i++;
 		}
-		switch (command) {
-			case 'create-settings':
-				this.createSettings();
-				break;
-			case 'help':
-				this.getHelp();
-				break;
-			default:
-				this.startServer();
-				break;
+		if (help) {
+			this.getHelp();
+		} else {
+			this.startServer();
 		}
 	}
 
@@ -81,8 +72,12 @@ class App {
 	getHelp() {
 		Common.addLog('Command line arguments:');
 		Common.addLog('');
-		Common.addLog('--help - to see this help');
-		Common.addLog(`--create-settings - to create a default settings file named "${Common.settingsFile}"`);
+		Common.addLog('--help             - to see this help');
+		Common.addLog('--port <number>    - set the server port');
+		Common.addLog('--host <hostname>  - set the server hostname');
+		Common.addLog('--secure           - enable TLS/SSL');
+		Common.addLog('--privkey <path>   - path to the private key file');
+		Common.addLog('--pubkey <path>    - path to the public key (certificate) file');
 		Common.addLog('');
 	}
 
@@ -96,26 +91,25 @@ class App {
 	}
 
 	createSettings() {
-		if (existsSync(Common.appPath + Common.settingsFile)) {
-			Common.addLog(`The settings file "${Common.settingsFile}" already exists. If you need to replace it with a default one, delete the old one first.`, 2);
-			process.exit(1);
-		} else {
-			const settings = {
-				web: {
-					port: 7010,
-					hostname: '0.0.0.0',
-					secure: false,
-					privkey: '',
-					pubkey: '',
-				},
-				other: {
-					log_to_file: true,
-					log_file: 'virtual-chat.log',
-				},
-			};
-			writeFileSync(Common.appPath + Common.settingsFile, JSON.stringify(settings, null, ' '));
-			Common.addLog(`The settings file "${Common.settingsFile}" has been successfully created.`);
-		}
+		const settings = {
+			web: {
+				port: 7010,
+				hostname: '0.0.0.0',
+				secure: false,
+				privkey: '',
+				pubkey: '',
+			},
+			limits: {
+				moves_per_second: 10,
+				messages_per_second: 3,
+			},
+			other: {
+				log_to_file: true,
+				log_file: 'virtual-chat.log',
+			},
+		};
+		writeFileSync(Common.appPath + Common.settingsFile, JSON.stringify(settings, null, ' '));
+		Common.addLog(`The settings file "${Common.settingsFile}" has been successfully created.`);
 	}
 }
 

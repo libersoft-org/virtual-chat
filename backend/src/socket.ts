@@ -13,6 +13,8 @@ interface UserData {
 interface Connection {
 	ws: ServerWebSocket<{ uuid: string }>;
 	user?: UserData;
+	moveTimestamps: number[];
+	messageTimestamps: number[];
 }
 
 export class Socket {
@@ -22,7 +24,7 @@ export class Socket {
 		const uuid = crypto.randomUUID();
 		Common.addLog('WS new connection: ' + uuid);
 		ws.data = { uuid };
-		this.connections[uuid] = { ws };
+		this.connections[uuid] = { ws, moveTimestamps: [], messageTimestamps: [] };
 		this.count();
 	}
 
@@ -196,7 +198,7 @@ export class Socket {
 			});
 			return;
 		}
-		if (typeof data['x'] !== 'number' || typeof data['y'] !== 'number' || typeof data['angle'] !== 'number') {
+		if (typeof data['x'] !== 'number' || typeof data['y'] !== 'number' || typeof data['angle'] !== 'number' || !Number.isFinite(data['x']) || !Number.isFinite(data['y']) || !Number.isFinite(data['angle'])) {
 			this.send(uuid, {
 				method: 'move',
 				error: 2,
@@ -212,6 +214,15 @@ export class Socket {
 			});
 			return;
 		}
+		if (data['angle'] < 0 || data['angle'] > 360) {
+			this.send(uuid, {
+				method: 'move',
+				error: 4,
+				message: 'Wrong angle',
+			});
+			return;
+		}
+		if (!this.rateLimit(uuid, 'move')) return;
 		conn.user.x = data['x'];
 		conn.user.y = data['y'];
 		conn.user.angle = data['angle'];
@@ -248,6 +259,7 @@ export class Socket {
 			});
 			return;
 		}
+		if (!this.rateLimit(uuid, 'message')) return;
 		this.broadcast({
 			method: 'message',
 			error: 0,
@@ -256,6 +268,28 @@ export class Socket {
 				message: data['message'].trim().substring(0, 250),
 			},
 		});
+	}
+
+	rateLimit(uuid: string, type: 'move' | 'message'): boolean {
+		const conn = this.connections[uuid];
+		if (!conn) return false;
+		const now = Date.now();
+		const timestamps = type === 'move' ? conn.moveTimestamps : conn.messageTimestamps;
+		const limit = type === 'move' ? (Common.settings.limits?.moves_per_second ?? 10) : (Common.settings.limits?.messages_per_second ?? 3);
+		// Remove timestamps older than 1 second
+		while (timestamps.length > 0 && timestamps[0]! <= now - 1000) {
+			timestamps.shift();
+		}
+		if (timestamps.length >= limit) {
+			this.send(uuid, {
+				method: type,
+				error: 10,
+				message: 'Too many requests, slow down',
+			});
+			return false;
+		}
+		timestamps.push(now);
+		return true;
 	}
 
 	getUsers(uuid: string): void {

@@ -186,7 +186,8 @@ export class World {
 			if (intersects.length > 0) {
 				const point = intersects[0]!.point;
 				this.setUserRotation(point.x, point.z);
-				this.onMove(point.x, point.z, this.user!.rotation.y);
+				const angleDeg = ((((this.user!.rotation.y * 180) / Math.PI) % 360) + 360) % 360;
+				this.onMove(point.x, point.z, angleDeg);
 				this.moveUserToPoint(point.x, point.z);
 			}
 		}

@@ -60,6 +60,7 @@ class App {
 		if (this.pubkey) Common.settings.web.pubkey = this.pubkey;
 		if (this.port) Common.settings.web.port = this.port;
 		if (this.host) Common.settings.web.hostname = this.host;
+		if (this.secure) Common.settings.web.secure = true;
 		const header = `${Common.appName} ver. ${Common.appVersion}`;
 		const dashes = "=".repeat(header.length);
 		Common.addLog("");
@@ -104,9 +105,10 @@ class App {
 		} else {
 			const settings = {
 				web: {
-					standalone: true,
 					port: 7010,
-					socket_path: "/run/virtual-chat.sock",
+					secure: false,
+					privkey: "",
+					pubkey: "",
 				},
 				other: {
 					log_to_file: true,

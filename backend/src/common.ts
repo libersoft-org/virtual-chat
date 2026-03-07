@@ -4,10 +4,9 @@ import { dirname } from "path";
 
 interface Settings {
 	web: {
-		standalone: boolean;
 		port: number;
 		hostname?: string;
-		socket_path: string;
+		secure?: boolean;
 		privkey?: string;
 		pubkey?: string;
 	};

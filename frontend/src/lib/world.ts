@@ -14,9 +14,6 @@ export class World {
 	camera!: THREE.PerspectiveCamera;
 	css2dRenderer!: CSS2DRenderer;
 	light!: THREE.DirectionalLight;
-	lightDirectionX = false;
-	lightDirectionZ = false;
-	lightHelper!: THREE.DirectionalLightHelper;
 	floor!: THREE.Mesh;
 	user: THREE.Group | undefined;
 	targetPosition: THREE.Vector3;
@@ -62,6 +59,7 @@ export class World {
 		this.css2dRenderer.setSize(window.innerWidth, window.innerHeight);
 		this.css2dRenderer.domElement.style.position = 'absolute';
 		this.css2dRenderer.domElement.style.top = '0px';
+		this.css2dRenderer.domElement.style.pointerEvents = 'none';
 		container.appendChild(this.css2dRenderer.domElement);
 
 		this.update = this.update.bind(this);
@@ -72,15 +70,6 @@ export class World {
 		requestAnimationFrame(this.update);
 		this.moveUser();
 
-		if (this.light.position.x < -10) this.lightDirectionX = true;
-		if (this.light.position.x > 10) this.lightDirectionX = false;
-		if (this.light.position.z < -5) this.lightDirectionZ = true;
-		if (this.light.position.z > 5) this.lightDirectionZ = false;
-
-		const speed = 3 * (this.deltaTime / 1000);
-		this.light.position.set(this.lightDirectionX ? this.light.position.x + speed : this.light.position.x - speed, this.light.position.y, this.lightDirectionZ ? this.light.position.z + speed : this.light.position.z - speed);
-
-		this.lightHelper.update();
 		this.updateOverlays();
 		this.renderer.render(this.scene, this.camera);
 		this.css2dRenderer.render(this.scene, this.camera);
@@ -106,16 +95,20 @@ export class World {
 	}
 
 	getLight() {
-		this.light = new THREE.DirectionalLight(0xffffff, 1.4);
-		this.light.position.set(0, 5, 0);
+		const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+		this.scene.add(ambient);
+		this.light = new THREE.DirectionalLight(0xffffff, 1.2);
+		this.light.position.set(10, 15, 5);
 		this.light.castShadow = true;
 		this.light.shadow.mapSize.width = 1024;
 		this.light.shadow.mapSize.height = 1024;
 		this.light.shadow.camera.near = 0.5;
-		this.light.shadow.camera.far = 500;
+		this.light.shadow.camera.far = 50;
+		this.light.shadow.camera.left = -15;
+		this.light.shadow.camera.right = 15;
+		this.light.shadow.camera.top = 10;
+		this.light.shadow.camera.bottom = -10;
 		this.scene.add(this.light);
-		this.lightHelper = new THREE.DirectionalLightHelper(this.light, 2);
-		this.scene.add(this.lightHelper);
 	}
 
 	getFloor() {
@@ -134,10 +127,6 @@ export class World {
 		this.floor.rotation.x = -Math.PI / 2;
 		this.floor.receiveShadow = true;
 		this.scene.add(this.floor);
-	}
-
-	setFloorRotation(value: number) {
-		if (this.floor) this.floor.rotation.x = value;
 	}
 
 	static colorMap: Record<number, number> = {
@@ -204,7 +193,7 @@ export class World {
 	}
 
 	onDocumentClick(event: MouseEvent) {
-		if (this.user) {
+		if (this.user && event.target === this.renderer.domElement) {
 			event.preventDefault();
 			const raycaster = new THREE.Raycaster();
 			const mouse = new THREE.Vector2();

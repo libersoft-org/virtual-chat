@@ -1,48 +1,103 @@
 <script lang="ts">
 	import type { World } from '../lib/world.ts';
+	import { netLog, type NetLogItem } from '$lib/stores';
 	let { world }: { world: World } = $props();
-	let floorRotation = $state(-Math.PI / 2);
-
-	function onInput(e: Event) {
-		floorRotation = parseFloat((e.target as HTMLInputElement).value);
-		world.setFloorRotation(floorRotation);
-	}
+	let items: NetLogItem[] = $state([]);
+	let open = $state(false);
+	let logEl: HTMLDivElement;
+	netLog.subscribe(v => {
+		items = v;
+		if (logEl) setTimeout(() => (logEl.scrollTop = logEl.scrollHeight), 0);
+	});
 </script>
 
 <style>
-	#debug-panel {
-		position: absolute;
-		top: 10px;
-		right: 60px;
-		z-index: 10;
-		background-color: rgba(255, 255, 255, 0.75);
+	.panel {
+		position: fixed;
+		bottom: 50px;
+		right: 10px;
+		z-index: 100;
+		background-color: var(--form-bg);
+		color: var(--form-text);
 		border: 1px solid #000;
 		border-radius: 10px;
-		padding: 10px;
-		font-size: 12px;
-		min-width: 180px;
+		display: flex;
+		flex-direction: column;
 	}
 
-	summary {
+	.header {
+		padding: 10px;
 		font-weight: bold;
 		cursor: pointer;
+		user-select: none;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 	}
 
-	input[type='range'] {
-		width: 100%;
-		border: none;
-		padding: 2px 0;
+	.content {
+		display: flex;
+		flex-direction: column;
+		height: 300px;
+		width: 450px;
+		border-top: 1px solid #000;
 	}
 
-	span {
+	.log {
+		overflow-y: auto;
+		flex: 1;
+		font-size: 11px;
+		padding: 8px;
+	}
+
+	.entry {
 		font-family: monospace;
+		word-break: break-all;
+		padding: 2px 0;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	.out { color: #0055cc; }
+	.in { color: #008800; }
+	.time { color: #666; }
+
+	.toolbar {
+		padding: 6px 8px;
+		text-align: right;
+		border-top: 1px solid rgba(0, 0, 0, 0.15);
+	}
+
+	.toolbar button {
+		font-size: 11px;
+		padding: 4px 12px;
+		cursor: pointer;
+		background-color: var(--form-bg);
+		color: var(--form-text);
+		border: 1px solid #000;
+		border-radius: 10px;
+		font-weight: bold;
 	}
 </style>
 
-<div id="debug-panel">
-	<details open>
-		<summary>Floor Rotation X</summary>
-		<input type="range" min={-Math.PI} max={Math.PI} step={0.000001} value={floorRotation} oninput={onInput} />
-		<span>{floorRotation.toFixed(4)}</span>
-	</details>
+<div class="panel">
+	<div class="header" onclick={() => (open = !open)}>
+		<span>{open ? '▼' : '▶'} Network log ({items.length})</span>
+	</div>
+
+	{#if open}
+		<div class="content">
+			<div class="log" bind:this={logEl}>
+				{#each items as item}
+					<div class="entry {item.dir}">
+						<span class="time">{item.time}</span>
+						{item.dir === 'out' ? '→' : '←'}
+						{item.json}
+					</div>
+				{/each}
+			</div>
+			<div class="toolbar">
+				<button onclick={() => netLog.clear()}>Clear</button>
+			</div>
+		</div>
+	{/if}
 </div>

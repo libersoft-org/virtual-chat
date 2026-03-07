@@ -1,4 +1,4 @@
-import { connectionStatus, alerts } from './stores';
+import { connectionStatus, alerts, netLog } from './stores';
 
 const errorMessages: Record<string, string> = {
 	INVALID_JSON: 'Invalid data sent to server',
@@ -43,6 +43,7 @@ export class Network {
 		};
 
 		this.ws.onmessage = (e: MessageEvent) => {
+			netLog.add('in', e.data);
 			const res = JSON.parse(e.data);
 			if (!res.error) {
 				switch (res.method) {
@@ -82,7 +83,9 @@ export class Network {
 	}
 
 	send(obj: object) {
-		this.ws.send(JSON.stringify(obj));
+		const json = JSON.stringify(obj);
+		netLog.add('out', json);
+		this.ws.send(json);
 	}
 
 	sendEnter(name: string, sex: boolean | null, color: number) {

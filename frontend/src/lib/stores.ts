@@ -36,3 +36,26 @@ function createAlerts() {
 }
 
 export const alerts = createAlerts();
+
+export interface NetLogItem {
+	dir: 'out' | 'in';
+	json: string;
+	time: string;
+}
+
+function createNetLog() {
+	const { subscribe, update } = writable<NetLogItem[]>([]);
+	return {
+		subscribe,
+		add(dir: 'out' | 'in', json: string) {
+			const now = new Date();
+			const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+			update(items => [...items.slice(-99), { dir, json, time }]);
+		},
+		clear() {
+			update(() => []);
+		},
+	};
+}
+
+export const netLog = createNetLog();

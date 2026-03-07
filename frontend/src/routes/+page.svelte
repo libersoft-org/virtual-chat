@@ -27,24 +27,37 @@
 
 		network = new Network(wsUrl, {
 			onEnter: (data: any) => {
+				network.myUuid = data.uuid;
 				isLoggedIn.set(true);
 				world.getUser(data.name, data.sex, data.color, data.x, data.y, data.angle);
 				world.createLabel(data.name);
+				network.sendUsers();
+			},
+			onUserEntered: (data: any) => {
+				world.addOtherPlayer(data.uuid, data.name, data.x, data.y);
 			},
 			onLeave: (data: any) => {
-				console.log('User left:', data);
-				world.removeUser();
-				isLoggedIn.set(false);
+				if (data.uuid === network.myUuid) {
+					world.removeUser();
+					network.myUuid = undefined;
+					isLoggedIn.set(false);
+				} else {
+					world.removeOtherPlayer(data.uuid);
+				}
 			},
 			onMove: (data: any) => {
-				console.log('Move:', data);
+				world.moveOtherPlayer(data.user, data.x, data.y);
 			},
 			onMessage: (data: any) => {
 				chatMessages.update((msgs) => [...msgs, { name: data.name, message: data.message }]);
 				world.createChatBubble(data.message);
 			},
 			onUsers: (data: any) => {
-				console.log('Users:', data);
+				for (const entry of data) {
+					if (entry.uuid !== network.myUuid) {
+						world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.x, entry.user.y);
+					}
+				}
 			}
 		});
 	});

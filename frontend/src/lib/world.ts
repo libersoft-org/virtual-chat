@@ -22,6 +22,7 @@ export class World {
 	targetPosition: THREE.Vector3;
 	labelObject?: CSS2DObject;
 	chatBubbles: { obj: CSS2DObject; user: THREE.Group }[] = [];
+	otherPlayers: Map<string, { group: THREE.Group; label: CSS2DObject }> = new Map();
 
 	constructor(container: HTMLElement, onMove: (x: number, y: number) => void) {
 		this.container = container;
@@ -270,6 +271,48 @@ export class World {
 			this.scene.remove(bubble.obj);
 		}
 		this.chatBubbles = [];
+		for (const [, player] of this.otherPlayers) {
+			this.scene.remove(player.group);
+			this.scene.remove(player.label);
+		}
+		this.otherPlayers.clear();
+	}
+
+	addOtherPlayer(uuid: string, name: string, x: number, y: number) {
+		if (this.otherPlayers.has(uuid)) return;
+		const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+		const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x888888 });
+		const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+		cube.position.set(0, 0.5, 0);
+		cube.castShadow = true;
+		const group = new THREE.Group();
+		group.add(cube);
+		group.position.set(x, 0, y);
+		this.scene.add(group);
+
+		const nameTagSpan = document.createElement('span');
+		nameTagSpan.textContent = name;
+		nameTagSpan.classList.add('name-tag');
+		const label = new CSS2DObject(nameTagSpan);
+		label.position.set(x, -1, y);
+		this.scene.add(label);
+
+		this.otherPlayers.set(uuid, { group, label });
+	}
+
+	removeOtherPlayer(uuid: string) {
+		const player = this.otherPlayers.get(uuid);
+		if (!player) return;
+		this.scene.remove(player.group);
+		this.scene.remove(player.label);
+		this.otherPlayers.delete(uuid);
+	}
+
+	moveOtherPlayer(uuid: string, x: number, y: number) {
+		const player = this.otherPlayers.get(uuid);
+		if (!player) return;
+		player.group.position.set(x, 0, y);
+		player.label.position.set(x, -1, y);
 	}
 
 	createChatBubble(message: string) {

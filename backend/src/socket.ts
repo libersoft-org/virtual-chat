@@ -85,6 +85,13 @@ export class Socket {
 		}
 	}
 
+	broadcastExcept(excludeUuid: string, obj: object): void {
+		const data = JSON.stringify(obj);
+		for (const [id, conn] of Object.entries(this.connections)) {
+			if (id !== excludeUuid) conn.ws.send(data);
+		}
+	}
+
 	count(): void {
 		Common.addLog("WS connections: " + Object.keys(this.connections).length);
 		let users = 0;
@@ -138,6 +145,7 @@ export class Socket {
 		} else {
 			res.error = 0;
 			res.data = {
+				uuid,
 				name: data.name.trim(),
 				color: data.color,
 				sex: data.sex,
@@ -147,7 +155,8 @@ export class Socket {
 			};
 			conn.user = res.data;
 			this.count();
-			this.broadcast(res);
+			this.send(uuid, res);
+			this.broadcastExcept(uuid, { method: "user_entered", error: 0, data: res.data });
 		}
 		if (res.error !== 0) this.send(uuid, res);
 	}
@@ -211,10 +220,10 @@ export class Socket {
 	}
 
 	getUsers(uuid: string): void {
-		const users: UserData[] = [];
-		for (const c of Object.values(this.connections)) {
-			if (c.user) users.push(c.user);
+		const users: { uuid: string; user: UserData }[] = [];
+		for (const [id, c] of Object.entries(this.connections)) {
+			if (c.user) users.push({ uuid: id, user: c.user });
 		}
-		this.send(uuid, { method: "locations", error: 0, data: users });
+		this.send(uuid, { method: "users", error: 0, data: users });
 	}
 }

@@ -2,6 +2,7 @@ import { connectionStatus } from './stores';
 
 interface NetworkCallbacks {
 	onEnter: (data: any) => void;
+	onUserEntered: (data: any) => void;
 	onLeave: (data: any) => void;
 	onMove: (data: any) => void;
 	onMessage: (data: any) => void;
@@ -11,6 +12,7 @@ interface NetworkCallbacks {
 export class Network {
 	ws: WebSocket;
 	callbacks: NetworkCallbacks;
+	myUuid?: string;
 
 	constructor(url: string, callbacks: NetworkCallbacks) {
 		this.callbacks = callbacks;
@@ -26,6 +28,9 @@ export class Network {
 				switch (res.method) {
 					case 'enter':
 						this.callbacks.onEnter(res.data);
+						break;
+					case 'user_entered':
+						this.callbacks.onUserEntered(res.data);
 						break;
 					case 'leave':
 						this.callbacks.onLeave(res.data);
@@ -69,6 +74,10 @@ export class Network {
 
 	sendLeave() {
 		this.send({ method: 'leave', data: {} });
+	}
+
+	sendUsers() {
+		this.send({ method: 'users', data: {} });
 	}
 
 	sendMove(x: number, y: number) {

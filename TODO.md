@@ -7,6 +7,7 @@
 
 ## Features
 
+- Change faces by users
 - Add log levels - add in settings from which level we want to log - for example - only WARN and ERR, no INFO / DEBUG
 - Add server address in initial form
 - If server disconnects, move user to initial page

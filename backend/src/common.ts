@@ -1,13 +1,11 @@
 import { appendFileSync } from 'fs';
 import { EOL } from 'os';
 import { dirname } from 'path';
-
 export const LogLevel = {
 	Info: 0,
 	Warning: 1,
 	Error: 2,
 } as const;
-
 type LogLevel = (typeof LogLevel)[keyof typeof LogLevel];
 
 interface Settings {
@@ -52,8 +50,6 @@ export class Common {
 				color = '\x1b[31m';
 		}
 		console.log(`\x1b[96m${date}\x1b[0m [${color}${typeText}\x1b[0m] ${msg}`);
-		if (this.settings?.other?.log_to_file) {
-			appendFileSync(this.appPath + this.settings.other.log_file, `${date} [${typeText}] ${msg}${EOL}`);
-		}
+		if (this.settings?.other?.log_to_file) appendFileSync(this.appPath + this.settings.other.log_file, `${date} [${typeText}] ${msg}${EOL}`);
 	}
 }

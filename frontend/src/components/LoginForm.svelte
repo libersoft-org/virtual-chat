@@ -27,7 +27,7 @@
 </script>
 
 <div id="login" class="form">
-	<div class="logo">Virtual Chat</div>
+	<div class="logo">Virtual chat</div>
 	<input type="text" placeholder="Nickname" bind:value={name} />
 	<select bind:value={sex}>
 		<option value="" selected>-- Gender --</option>

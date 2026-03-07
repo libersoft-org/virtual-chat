@@ -1,4 +1,4 @@
-# Virtual Chat - installation
+# Virtual chat - installation
 
 These are the installation instructions for **Debian Linux** (logged in as root):
 
@@ -25,6 +25,7 @@ cd backend/
 ```
 
 ## 2. Edit the "settings.json" file and set the following:
+
 - **web** section
   - **standalone** - true / false
     - **true** means it will run a standalone web server with network port

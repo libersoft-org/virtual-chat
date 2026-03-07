@@ -1,4 +1,4 @@
-# Virtual Chat
+# Virtual chat
 
 ## Table of contents
 
@@ -13,7 +13,7 @@
 
 ## About
 
-**Virtual Chat** is a simple virtual world web application, where users can control their character and chat with other people. It is written in:
+**Virtual chat** is a simple virtual world web application, where users can control their character and chat with other people. It is written in:
 
 - **Backend**: [**Bun**](https://bun.sh/)
 - **Frontend**: [**Svelte**](https://svelte.dev/) + [**Three.js**](https://threejs.org/)
@@ -29,7 +29,7 @@
 ## Screenshot
 
 <p align="center">
- <img src="./screenshot.webp" alt="Virtual Chat" />
+ <img src="./screenshot.webp" alt="Virtual chat" />
 </p>
 
 ## License

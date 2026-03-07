@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { Common } from './common';
+import { Common, LogLevel } from './common';
 import { WebServer } from './webserver';
 
 class App {
@@ -18,7 +18,7 @@ class App {
 				case '--port': {
 					const port = parseInt(args[++i]!, 10);
 					if (isNaN(port) || port < 1 || port > 65535) {
-						Common.addLog('Invalid port number', 2);
+						Common.addLog('Invalid port number', LogLevel.Error);
 						process.exit(1);
 					}
 					this.port = port;
@@ -51,7 +51,7 @@ class App {
 	host?: string;
 	secure?: boolean;
 
-	startServer() {
+	async startServer() {
 		this.loadSettings();
 		if (this.privkey) Common.settings.web.privkey = this.privkey;
 		if (this.pubkey) Common.settings.web.pubkey = this.pubkey;
@@ -66,7 +66,13 @@ class App {
 		Common.addLog(dashes);
 		Common.addLog('');
 		const webServer = new WebServer();
-		webServer.run();
+		await webServer.run();
+		const shutdown = () => {
+			webServer.shutdown();
+			process.exit(0);
+		};
+		process.on('SIGINT', shutdown);
+		process.on('SIGTERM', shutdown);
 	}
 
 	getHelp() {

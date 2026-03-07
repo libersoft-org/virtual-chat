@@ -1,16 +1,18 @@
 import { existsSync } from 'fs';
 import { Socket } from './socket';
-import { Common } from './common';
+import { Common, LogLevel } from './common';
+import type { Server } from 'bun';
 
 export class WebServer {
 	socket: Socket = new Socket();
+	server?: Server<{ uuid: string }>;
 
 	async run(): Promise<void> {
 		try {
 			await this.startServer();
 		} catch (ex) {
-			Common.addLog('Cannot start web server.', 2);
-			Common.addLog(ex, 2);
+			Common.addLog('Cannot start web server.', LogLevel.Error);
+			Common.addLog(ex, LogLevel.Error);
 		}
 	}
 
@@ -35,7 +37,16 @@ export class WebServer {
 				srv.tls = { key: Bun.file(keyPath), cert: Bun.file(certPath) };
 			}
 		}
-		Bun.serve(srv);
+		this.server = Bun.serve(srv);
 		Common.addLog(`WebSocket server is running on ${Common.settings.web.secure ? 'wss' : 'ws'}://${Common.settings.web.hostname || '0.0.0.0'}:${Common.settings.web.port}`);
+	}
+
+	shutdown(): void {
+		Common.addLog('Shutting down...');
+		for (const ws of Object.values(this.socket.connections)) {
+			ws.close(1001, 'Server shutting down');
+		}
+		this.server?.stop();
+		Common.addLog('Server stopped.');
 	}
 }

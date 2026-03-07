@@ -1,6 +1,5 @@
 import { Common } from './common';
 import type { Socket } from './socket';
-
 interface UserData {
 	name: string;
 	color: number;
@@ -73,9 +72,7 @@ export class API {
 		const now = Date.now();
 		const timestamps = type === 'move' ? this.rateLimits[uuid].moveTimestamps : this.rateLimits[uuid].messageTimestamps;
 		const limit = type === 'move' ? (Common.settings.limits?.moves_per_second ?? 10) : (Common.settings.limits?.messages_per_second ?? 3);
-		while (timestamps.length > 0 && timestamps[0]! <= now - 1000) {
-			timestamps.shift();
-		}
+		while (timestamps.length > 0 && timestamps[0]! <= now - 1000) timestamps.shift();
 		if (timestamps.length >= limit) {
 			this.socket.send(uuid, { method: type, error: 'RATE_LIMITED' });
 			return false;
@@ -124,11 +121,8 @@ export class API {
 	}
 
 	getLeave(uuid: string): void {
-		if (!this.users[uuid]) {
-			this.socket.send(uuid, { method: 'leave', error: 'NOT_IN_ROOM' });
-		} else {
-			this.leave(uuid);
-		}
+		if (!this.users[uuid]) this.socket.send(uuid, { method: 'leave', error: 'NOT_IN_ROOM' });
+		else this.leave(uuid);
 	}
 
 	getMove(uuid: string, data: Record<string, unknown>): void {
@@ -187,9 +181,7 @@ export class API {
 
 	getUsers(uuid: string): void {
 		const users: { uuid: string; user: UserData }[] = [];
-		for (const [id, user] of Object.entries(this.users)) {
-			users.push({ uuid: id, user });
-		}
+		for (const [id, user] of Object.entries(this.users)) users.push({ uuid: id, user });
 		this.socket.send(uuid, { method: 'users', error: '', data: users });
 	}
 }

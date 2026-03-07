@@ -2,6 +2,14 @@ import { appendFileSync } from 'fs';
 import { EOL } from 'os';
 import { dirname } from 'path';
 
+export const LogLevel = {
+	Info: 0,
+	Warning: 1,
+	Error: 2,
+} as const;
+
+type LogLevel = (typeof LogLevel)[keyof typeof LogLevel];
+
 interface Settings {
 	web: {
 		port: number;
@@ -27,19 +35,19 @@ export class Common {
 	static appPath: string = dirname(Bun.main) + '/';
 	static settings: Settings;
 
-	static addLog(message: unknown = '', type = 0): void {
+	static addLog(message: unknown = '', level: LogLevel = LogLevel.Info): void {
 		const d = new Date();
 		const pad = (num: number) => num.toString().padStart(2, '0');
 		const date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 		const msg = message === undefined ? '' : String(message);
 		let typeText = 'INFO';
 		let color = '\x1b[32m';
-		switch (type) {
-			case 1:
+		switch (level) {
+			case LogLevel.Warning:
 				typeText = 'WARNING';
 				color = '\x1b[33m';
 				break;
-			case 2:
+			case LogLevel.Error:
 				typeText = 'ERROR';
 				color = '\x1b[31m';
 		}

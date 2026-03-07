@@ -142,29 +142,31 @@ select {
 	position: absolute;
 	top: 10px;
 	left: 10px;
-	width: 200px;
-	height: 200px;
+	width: 25vw;
+	height: 20vh;
 	overflow: auto;
 	padding: 10px;
 	background-color: var(--form-bg);
 	color: var(--form-text);
 	z-index: 10;
+	box-sizing: border-box;
 }
 
 #message {
 	position: absolute;
-	top: 240px;
+	top: calc(20vh + 20px);
 	left: 10px;
-	width: 200px;
+	width: 25vw;
 	background-color: var(--form-bg);
 	color: var(--form-text);
 	z-index: 10;
+	box-sizing: border-box;
 }
 
 #fps {
 	position: absolute;
 	top: 10px;
-	left: 240px;
+	left: calc(25vw + 40px);
 	font-weight: bold;
 	font-size: 20px;
 	color: #f00;

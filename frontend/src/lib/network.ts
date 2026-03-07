@@ -1,5 +1,25 @@
 import { connectionStatus, alerts } from './stores';
 
+const errorMessages: Record<string, string> = {
+	INVALID_JSON: 'Invalid data sent to server',
+	INVALID_COMMAND: 'Invalid command',
+	UNKNOWN_METHOD: 'Unknown command',
+	ALREADY_IN_ROOM: 'You are already in the room',
+	MISSING_NAME: 'Name is required',
+	WRONG_NAME: 'Wrong name format — use 3-16 characters: letters, numbers, dot, dash or underscore',
+	MISSING_SEX: 'Sex is required',
+	WRONG_SEX: 'Invalid sex value',
+	MISSING_COLOR: 'Color is required',
+	WRONG_COLOR: 'Invalid color',
+	NOT_IN_ROOM: 'You are not in the room',
+	INVALID_COORDS: 'Invalid coordinates',
+	WRONG_COORDS: 'Coordinates out of bounds',
+	WRONG_ANGLE: 'Invalid angle',
+	MISSING_MESSAGE: 'Message is required',
+	EMPTY_MESSAGE: 'Message cannot be empty',
+	RATE_LIMITED: 'Too many requests, slow down',
+};
+
 interface NetworkCallbacks {
 	onEnter: (data: any) => void;
 	onUserEntered: (data: any) => void;
@@ -24,7 +44,7 @@ export class Network {
 
 		this.ws.onmessage = (e: MessageEvent) => {
 			const res = JSON.parse(e.data);
-			if (res.error === 0) {
+			if (!res.error) {
 				switch (res.method) {
 					case 'enter':
 						this.callbacks.onEnter(res.data);
@@ -48,7 +68,7 @@ export class Network {
 						console.error('Unknown method from server:', res.method);
 				}
 			} else {
-				alerts.add(res.message || 'Unknown error');
+				alerts.add(errorMessages[res.error] || `Unknown error: ${res.error}`);
 			}
 		};
 

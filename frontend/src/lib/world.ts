@@ -328,8 +328,9 @@ export class World {
 		cube.castShadow = true;
 		const group = new THREE.Group();
 		group.add(cube);
+		const angleRad = (angle * Math.PI) / 180;
 		group.position.set(x, 0, y);
-		group.rotation.y = angle;
+		group.rotation.y = angleRad;
 		this.scene.add(group);
 
 		const nameTagSpan = document.createElement('span');
@@ -340,7 +341,7 @@ export class World {
 		this.scene.add(label);
 
 		const target = new THREE.Vector3(x, 0, y);
-		this.otherPlayers.set(uuid, { group, label, target, targetAngle: angle });
+		this.otherPlayers.set(uuid, { group, label, target, targetAngle: angleRad });
 	}
 
 	removeOtherPlayer(uuid: string) {
@@ -355,7 +356,7 @@ export class World {
 		const player = this.otherPlayers.get(uuid);
 		if (!player) return;
 		player.target.set(x, 0, y);
-		player.targetAngle = angle;
+		player.targetAngle = (angle * Math.PI) / 180;
 	}
 
 	createChatBubble(message: string) {

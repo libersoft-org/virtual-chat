@@ -183,6 +183,9 @@ export class Socket {
 		} else if (!("x" in data) || !("y" in data)) {
 			res.error = 2;
 			res.message = "Missing coordinates";
+		} else if (typeof data.x !== "number" || typeof data.y !== "number") {
+			res.error = 2;
+			res.message = "Invalid coordinates";
 		} else if (data.x < -10 || data.x > 10 || data.y < -5 || data.y > 5) {
 			res.error = 3;
 			res.message = "Wrong coordinates";
@@ -212,7 +215,7 @@ export class Socket {
 			res.error = 0;
 			res.data = {
 				name: conn.user!.name,
-				message: data.message.trim(),
+				message: data.message.trim().substring(0, 250),
 			};
 			this.broadcast(res);
 		}

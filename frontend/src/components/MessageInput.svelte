@@ -18,4 +18,4 @@
 </script>
 
 <svelte:document onkeydown={onKeyDown} />
-<input id="message" type="text" placeholder="Enter your message" bind:value={message} bind:this={inputEl} />
+<input id="message" type="text" placeholder="Enter your message" maxlength="250" bind:value={message} bind:this={inputEl} />

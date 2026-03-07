@@ -7,9 +7,8 @@ export class Socket {
 	api: API = new API(this);
 
 	onOpen(ws: ServerWebSocket<{ uuid: string }>): void {
-		const uuid = crypto.randomUUID();
+		const uuid = ws.data.uuid;
 		Common.addLog('WS new connection: ' + uuid);
-		ws.data = { uuid };
 		this.connections[uuid] = ws;
 		this.api.onConnect(uuid);
 	}

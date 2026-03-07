@@ -145,8 +145,8 @@ export class World {
 		const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
 		const baseMaterial = new THREE.MeshStandardMaterial({ color: baseColor });
 		const faceMaterial = this.createFaceMaterial(baseColor);
-		// Three.js face order: +X, -X, +Y, -Y, +Z, -Z (front = direction of movement)
-		const cubeMaterials = [baseMaterial, baseMaterial, baseMaterial, baseMaterial, baseMaterial, faceMaterial];
+		// Three.js face order: +X, -X, +Y, -Y, +Z, -Z
+		const cubeMaterials = [baseMaterial, baseMaterial, baseMaterial, baseMaterial, faceMaterial, baseMaterial];
 		const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
 		cube.position.set(0, 0.5, 0);
 		cube.castShadow = true;
@@ -234,7 +234,7 @@ export class World {
 		setTimeout(() => {
 			this.scene.remove(arrowHelper);
 		}, 2000);
-		this.user.rotation.y = Math.atan2(-direction.x, -direction.z);
+		this.user.rotation.y = Math.atan2(direction.x, direction.z);
 	}
 
 	moveUserToPoint(x: number, y: number) {
@@ -312,7 +312,7 @@ export class World {
 		const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
 		const baseMaterial = new THREE.MeshStandardMaterial({ color: baseColor });
 		const faceMaterial = this.createFaceMaterial(baseColor);
-		const cubeMaterials = [baseMaterial, baseMaterial, baseMaterial, baseMaterial, baseMaterial, faceMaterial];
+		const cubeMaterials = [baseMaterial, baseMaterial, baseMaterial, baseMaterial, faceMaterial, baseMaterial];
 		const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
 		cube.position.set(0, 0.5, 0);
 		cube.castShadow = true;

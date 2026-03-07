@@ -17,7 +17,7 @@
 **Virtual Chat** is a simple virtual world web application, where users can control their character and chat with other people. It is written in:
 
 - **Backend**: [**Bun**](https://bun.sh/)
-- **Frontend**: [**HTML**](https://www.w3.org/html/) + [**CSS**](https://www.w3.org/Style/CSS/) + [**JavaScript**](https://www.ecma-international.org/publications-and-standards/standards/ecma-262/)
+- **Frontend**: [**Svelte**](https://svelte.dev/) + [**Three.js**](https://threejs.org/) + [**Vite**](https://vite.dev/)
 
 ## Development state
 

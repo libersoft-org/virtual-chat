@@ -1,0 +1,84 @@
+import { connectionStatus } from './stores';
+
+interface NetworkCallbacks {
+	onEnter: (data: any) => void;
+	onLeave: (data: any) => void;
+	onMove: (data: any) => void;
+	onMessage: (data: any) => void;
+	onUsers: (data: any) => void;
+}
+
+export class Network {
+	ws: WebSocket;
+	callbacks: NetworkCallbacks;
+
+	constructor(url: string, callbacks: NetworkCallbacks) {
+		this.callbacks = callbacks;
+		this.ws = new WebSocket(url);
+
+		this.ws.onopen = () => {
+			connectionStatus.set({ text: 'Connected', color: 'green' });
+		};
+
+		this.ws.onmessage = (e: MessageEvent) => {
+			const res = JSON.parse(e.data);
+			if (res.error === 0) {
+				switch (res.method) {
+					case 'enter':
+						this.callbacks.onEnter(res.data);
+						break;
+					case 'leave':
+						this.callbacks.onLeave(res.data);
+						break;
+					case 'move':
+						this.callbacks.onMove(res.data);
+						break;
+					case 'message':
+						this.callbacks.onMessage(res.data);
+						break;
+					case 'users':
+						this.callbacks.onUsers(res.data);
+						break;
+					default:
+						console.error('Unknown method from server:', res.method);
+				}
+			} else {
+				console.error('Server error:', res.method, res.error, res.message);
+			}
+		};
+
+		this.ws.onerror = (e: Event) => {
+			console.error('WS error:', e);
+		};
+
+		this.ws.onclose = () => {
+			connectionStatus.set({ text: 'Disconnected', color: 'red' });
+		};
+	}
+
+	send(obj: object) {
+		this.ws.send(JSON.stringify(obj));
+	}
+
+	sendEnter(name: string, sex: boolean | null, color: number) {
+		this.send({
+			method: 'enter',
+			data: { name, sex, color: Number(color) }
+		});
+	}
+
+	sendLeave() {
+		this.send({ method: 'leave' });
+	}
+
+	sendMove(x: number, y: number) {
+		this.send({ method: 'move', data: { x, y } });
+	}
+
+	sendMessage(text: string) {
+		this.send({
+			method: 'message',
+			data: { message: text }
+		});
+	}
+}

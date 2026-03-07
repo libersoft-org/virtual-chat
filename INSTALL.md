@@ -11,7 +11,16 @@ apt -y install curl unzip git
 curl -fsSL https://bun.sh/install | bash
 source /root/.bashrc
 git clone https://github.com/libersoft-org/virtual-chat.git
-cd virtual-chat/src/
+cd virtual-chat/
+
+# Install frontend dependencies and build
+cd frontend/
+bun install
+bun run build
+cd ..
+
+# Create backend settings
+cd backend/
 ./start.sh --create-settings
 ```
 
@@ -22,7 +31,7 @@ cd virtual-chat/src/
     - **false** means you'll run it as a unix socket and connect it through other web server (**Nginx** is recommended)
   - **port** - your web server's network port (ignored if you're not running a standalone server)
   - **socket_path** - path to a unix socket file (ignored if you're running standalone server)
-  - **client_path** - path to the web client
+  - **client_path** - path to the web client (default: `../frontend/dist/`)
 - **other** section
   - **log_to_file** - if you'd like to log to console and log file (true) or to console only (false)
   - **log_file** - the path to your log file (ignored if log_to_file is false)

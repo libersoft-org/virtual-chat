@@ -178,6 +178,8 @@ export class Socket {
 			res.error = 3;
 			res.message = "Wrong coordinates";
 		} else {
+			conn.user.x = data.x;
+			conn.user.y = data.y;
 			res.error = 0;
 			res.data = { user: uuid, x: data.x, y: data.y };
 			this.broadcast(res);

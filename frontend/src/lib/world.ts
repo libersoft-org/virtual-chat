@@ -16,9 +16,12 @@ export class World {
 	light!: THREE.DirectionalLight;
 	lightDirectionX = false;
 	lightDirectionZ = false;
+	lightHelper!: THREE.DirectionalLightHelper;
 	floor!: THREE.Mesh;
 	user?: THREE.Group;
 	targetPosition: THREE.Vector3;
+	labelObject?: CSS2DObject;
+	chatBubbles: { obj: CSS2DObject; user: THREE.Group }[] = [];
 
 	constructor(container: HTMLElement, onMove: (x: number, y: number) => void) {
 		this.container = container;
@@ -45,14 +48,15 @@ export class World {
 		document.addEventListener('click', this.onDocumentClick.bind(this), false);
 
 		this.targetPosition = new THREE.Vector3();
-		this.update = this.update.bind(this);
-		this.update();
 
 		this.css2dRenderer = new CSS2DRenderer();
 		this.css2dRenderer.setSize(window.innerWidth, window.innerHeight);
 		this.css2dRenderer.domElement.style.position = 'absolute';
 		this.css2dRenderer.domElement.style.top = '0px';
 		container.appendChild(this.css2dRenderer.domElement);
+
+		this.update = this.update.bind(this);
+		this.update();
 	}
 
 	update() {
@@ -71,10 +75,10 @@ export class World {
 			this.lightDirectionZ ? this.light.position.z + speed : this.light.position.z - speed
 		);
 
-		const lightHelper = new THREE.DirectionalLightHelper(this.light, 2);
-		this.scene.add(lightHelper);
+		this.lightHelper.update();
+		this.updateOverlays();
 		this.renderer.render(this.scene, this.camera);
-		this.scene.remove(lightHelper);
+		this.css2dRenderer.render(this.scene, this.camera);
 
 		const now = Date.now();
 		this.deltaTime = now - this.lastTime;
@@ -105,6 +109,8 @@ export class World {
 		this.light.shadow.camera.near = 0.5;
 		this.light.shadow.camera.far = 500;
 		this.scene.add(this.light);
+		this.lightHelper = new THREE.DirectionalLightHelper(this.light, 2);
+		this.scene.add(this.lightHelper);
 	}
 
 	getFloor() {
@@ -230,6 +236,15 @@ export class World {
 		}
 	}
 
+	updateOverlays() {
+		if (this.user && this.labelObject) {
+			this.labelObject.position.set(this.user.position.x, this.user.position.y - 1, this.user.position.z);
+		}
+		for (const bubble of this.chatBubbles) {
+			bubble.obj.position.set(bubble.user.position.x + 0.2, bubble.user.position.y + 2, bubble.user.position.z);
+		}
+	}
+
 	createLabel(name: string) {
 		if (!this.user) return;
 		const nameTagSpan = document.createElement('span');
@@ -238,38 +253,28 @@ export class World {
 		const nameTag2DObject = new CSS2DObject(nameTagSpan);
 		this.scene.add(nameTag2DObject);
 		nameTag2DObject.position.set(this.user.position.x, this.user.position.y - 1, this.user.position.z);
-		this.css2dRenderer.render(this.scene, this.camera);
-		const user = this.user;
-		const css2dRenderer = this.css2dRenderer;
-		const scene = this.scene;
-		const camera = this.camera;
-		const animate = () => {
-			requestAnimationFrame(animate);
-			nameTag2DObject.position.set(user.position.x, user.position.y - 1, user.position.z);
-			css2dRenderer.render(scene, camera);
-		};
-		animate();
+		this.labelObject = nameTag2DObject;
 	}
 
 	createChatBubble(message: string) {
 		if (!this.user) return;
+		// Remove existing bubble for this user
+		const existing = this.chatBubbles.find(b => b.user === this.user);
+		if (existing) {
+			this.scene.remove(existing.obj);
+			this.chatBubbles = this.chatBubbles.filter(b => b !== existing);
+		}
 		const chatBubbleP = document.createElement('p');
 		chatBubbleP.textContent = message;
 		chatBubbleP.classList.add('chat-bubble');
 		const chatBubble2DObject = new CSS2DObject(chatBubbleP);
+		chatBubble2DObject.center.set(0.5, 1);
 		this.scene.add(chatBubble2DObject);
-		const user = this.user;
-		const css2dRenderer = this.css2dRenderer;
-		const scene = this.scene;
-		const camera = this.camera;
-		const animate = () => {
-			requestAnimationFrame(animate);
-			chatBubble2DObject.position.set(user.position.x + 0.2, user.position.y + 2, user.position.z);
-			css2dRenderer.render(scene, camera);
-		};
-		animate();
+		const entry = { obj: chatBubble2DObject, user: this.user };
+		this.chatBubbles.push(entry);
 		setTimeout(() => {
-			scene.remove(chatBubble2DObject);
+			this.scene.remove(chatBubble2DObject);
+			this.chatBubbles = this.chatBubbles.filter(b => b !== entry);
 		}, 7000);
 	}
 }

@@ -2,17 +2,6 @@
 	import { alerts } from '$lib/stores';
 </script>
 
-{#if $alerts.length > 0}
-	<div class="alert-container">
-		{#each $alerts as alert (alert.id)}
-			<div class="alert" role="alert">
-				<span>{alert.message}</span>
-				<button class="alert-close" onclick={() => alerts.remove(alert.id)}>&times;</button>
-			</div>
-		{/each}
-	</div>
-{/if}
-
 <style>
 	.alert-container {
 		position: fixed;
@@ -48,3 +37,14 @@
 		padding: 0 4px;
 	}
 </style>
+
+{#if $alerts.length > 0}
+	<div class="alert-container">
+		{#each $alerts as alert (alert.id)}
+			<div class="alert" role="alert">
+				<span>{alert.message}</span>
+				<button class="alert-close" onclick={() => alerts.remove(alert.id)}>&times;</button>
+			</div>
+		{/each}
+	</div>
+{/if}

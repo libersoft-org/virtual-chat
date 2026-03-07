@@ -5,7 +5,10 @@ interface ChatMessage {
 	message: string;
 }
 
-export const connectionStatus = writable({ text: 'Not connected', color: 'red' });
+export const connectionStatus = writable({
+	text: 'Not connected',
+	color: 'red',
+});
 export const chatMessages = writable<ChatMessage[]>([]);
 export const isLoggedIn = writable(false);
 export const fpsValue = writable('-');
@@ -28,7 +31,7 @@ function createAlerts() {
 		},
 		remove(id: number) {
 			update(items => items.filter(i => i.id !== id));
-		}
+		},
 	};
 }
 

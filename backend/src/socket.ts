@@ -1,5 +1,5 @@
-import { Common } from "./common";
-import type { ServerWebSocket } from "bun";
+import { Common } from './common';
+import type { ServerWebSocket } from 'bun';
 
 interface UserData {
 	name: string;
@@ -20,7 +20,7 @@ export class Socket {
 
 	onOpen(ws: ServerWebSocket<{ uuid: string }>): void {
 		const uuid = crypto.randomUUID();
-		Common.addLog("WS new connection: " + uuid);
+		Common.addLog('WS new connection: ' + uuid);
 		ws.data = { uuid };
 		this.connections[uuid] = { ws };
 		this.count();
@@ -28,7 +28,7 @@ export class Socket {
 
 	onClose(ws: ServerWebSocket<{ uuid: string }>): void {
 		const uuid = ws.data.uuid;
-		Common.addLog("WS connection closed: " + uuid);
+		Common.addLog('WS connection closed: ' + uuid);
 		if (this.connections[uuid]?.user) this.leave(uuid);
 		delete this.connections[uuid];
 		this.count();
@@ -39,37 +39,37 @@ export class Socket {
 		try {
 			const msg = JSON.parse(String(json));
 			Common.addLog(`WS message from ${uuid}: ${JSON.stringify(msg)}`);
-			if ("method" in msg && "data" in msg) {
+			if ('method' in msg && 'data' in msg) {
 				switch (msg.method) {
-					case "enter":
+					case 'enter':
 						this.getEnter(uuid, msg.data);
 						break;
-					case "leave":
+					case 'leave':
 						this.getLeave(uuid);
 						break;
-					case "move":
+					case 'move':
 						this.getMove(uuid, msg.data);
 						break;
-					case "message":
+					case 'message':
 						this.getMessage(uuid, msg.data);
 						break;
-					case "users":
+					case 'users':
 						this.getUsers(uuid);
 						break;
 					default:
 						this.send(uuid, {
 							method: msg.method,
 							error: 3,
-							message: "Unknown method in command",
+							message: 'Unknown method in command',
 						});
 						break;
 				}
 			} else {
-				this.send(uuid, { error: 2, message: "Invalid command" });
+				this.send(uuid, { error: 2, message: 'Invalid command' });
 			}
 		} catch (e) {
 			Common.addLog(`WS invalid JSON from ${uuid}: ${e}`, 2);
-			this.send(uuid, { error: 1, message: "Invalid JSON" });
+			this.send(uuid, { error: 1, message: 'Invalid JSON' });
 		}
 	}
 
@@ -92,17 +92,17 @@ export class Socket {
 	}
 
 	count(): void {
-		Common.addLog("WS connections: " + Object.keys(this.connections).length);
+		Common.addLog('WS connections: ' + Object.keys(this.connections).length);
 		let users = 0;
 		for (const c of Object.values(this.connections)) {
 			if (c.user) users++;
 		}
-		Common.addLog("WS users: " + users);
+		Common.addLog('WS users: ' + users);
 	}
 
 	leave(uuid: string): void {
 		this.broadcast({
-			method: "leave",
+			method: 'leave',
 			error: 0,
 			data: { uuid },
 		});
@@ -111,115 +111,151 @@ export class Socket {
 		this.count();
 	}
 
-	getEnter(uuid: string, data: any): void {
-		const res: any = { method: "enter" };
+	getEnter(uuid: string, data: Record<string, unknown>): void {
 		const conn = this.connections[uuid];
 		if (!conn) return;
 		if (conn.user) {
-			res.error = 1;
-			res.message = "User is already in room";
-		} else if (!("name" in data)) {
-			res.error = 2;
-			res.message = "Missing name";
-		} else if (!/^[A-Za-z0-9._-]{3,16}$/.test(data.name.trim())) {
-			res.error = 3;
-			res.message =
-				"Wrong name format - can contain 3 - 16 characters, only letters, numbers, dot, dash or underscore";
-		} else if (!("sex" in data)) {
-			res.error = 6;
-			res.message = "Missing sex";
-		} else if (data.sex !== true && data.sex !== false) {
-			res.error = 7;
-			res.message = "Wrong sex value";
-		} else if (!("color" in data)) {
-			res.error = 4;
-			res.message = "Missing color";
-		} else if (
-			!Number.isInteger(data.color) ||
-			data.color < 1 ||
-			data.color > 8
-		) {
-			res.error = 5;
-			res.message = "Wrong color ID";
-		} else {
-			res.error = 0;
-			res.data = {
-				uuid,
-				name: data.name.trim(),
-				color: data.color,
-				sex: data.sex,
-				x: 0,
-				y: 0,
-				angle: 0,
-			};
-			conn.user = res.data;
-			this.count();
-			this.send(uuid, res);
-			this.broadcastExcept(uuid, { method: "user_entered", error: 0, data: res.data });
+			this.send(uuid, {
+				method: 'enter',
+				error: 1,
+				message: 'User is already in room',
+			});
+			return;
 		}
-		if (res.error !== 0) this.send(uuid, res);
+		if (typeof data['name'] !== 'string') {
+			this.send(uuid, { method: 'enter', error: 2, message: 'Missing name' });
+			return;
+		}
+		if (!/^[A-Za-z0-9._-]{3,16}$/.test(data['name'].trim())) {
+			this.send(uuid, {
+				method: 'enter',
+				error: 3,
+				message: 'Wrong name format - can contain 3 - 16 characters, only letters, numbers, dot, dash or underscore',
+			});
+			return;
+		}
+		if (!('sex' in data)) {
+			this.send(uuid, { method: 'enter', error: 6, message: 'Missing sex' });
+			return;
+		}
+		if (data['sex'] !== true && data['sex'] !== false) {
+			this.send(uuid, {
+				method: 'enter',
+				error: 7,
+				message: 'Wrong sex value',
+			});
+			return;
+		}
+		if (!('color' in data)) {
+			this.send(uuid, { method: 'enter', error: 4, message: 'Missing color' });
+			return;
+		}
+		if (!Number.isInteger(data['color']) || (data['color'] as number) < 1 || (data['color'] as number) > 8) {
+			this.send(uuid, { method: 'enter', error: 5, message: 'Wrong color ID' });
+			return;
+		}
+		const userData: UserData = {
+			name: data['name'].trim(),
+			color: data['color'] as number,
+			sex: data['sex'] as boolean,
+			x: 0,
+			y: 0,
+			angle: 0,
+		};
+		conn.user = userData;
+		this.count();
+		const enterData = { uuid, ...userData };
+		this.send(uuid, { method: 'enter', error: 0, data: enterData });
+		this.broadcastExcept(uuid, {
+			method: 'user_entered',
+			error: 0,
+			data: enterData,
+		});
 	}
 
 	getLeave(uuid: string): void {
 		const conn = this.connections[uuid];
 		if (!conn?.user) {
 			this.send(uuid, {
-				method: "leave",
+				method: 'leave',
 				error: 1,
-				message: "User is not in room",
+				message: 'User is not in room',
 			});
 		} else {
 			this.leave(uuid);
 		}
 	}
 
-	getMove(uuid: string, data: any): void {
-		const res: any = { method: "move" };
+	getMove(uuid: string, data: Record<string, unknown>): void {
 		const conn = this.connections[uuid];
 		if (!conn?.user) {
-			res.error = 1;
-			res.message = "User not in room";
-		} else if (!("x" in data) || !("y" in data)) {
-			res.error = 2;
-			res.message = "Missing coordinates";
-		} else if (typeof data.x !== "number" || typeof data.y !== "number" || typeof data.angle !== "number") {
-			res.error = 2;
-			res.message = "Invalid coordinates";
-		} else if (data.x < -10 || data.x > 10 || data.y < -5 || data.y > 5) {
-			res.error = 3;
-			res.message = "Wrong coordinates";
-		} else {
-			conn.user.x = data.x;
-			conn.user.y = data.y;
-			conn.user.angle = data.angle;
-			res.error = 0;
-			res.data = { user: uuid, x: data.x, y: data.y, angle: data.angle };
-			this.broadcast(res);
+			this.send(uuid, {
+				method: 'move',
+				error: 1,
+				message: 'User not in room',
+			});
+			return;
 		}
-		if (res.error !== 0) this.send(uuid, res);
+		if (typeof data['x'] !== 'number' || typeof data['y'] !== 'number' || typeof data['angle'] !== 'number') {
+			this.send(uuid, {
+				method: 'move',
+				error: 2,
+				message: 'Invalid coordinates',
+			});
+			return;
+		}
+		if (data['x'] < -10 || data['x'] > 10 || data['y'] < -5 || data['y'] > 5) {
+			this.send(uuid, {
+				method: 'move',
+				error: 3,
+				message: 'Wrong coordinates',
+			});
+			return;
+		}
+		conn.user.x = data['x'];
+		conn.user.y = data['y'];
+		conn.user.angle = data['angle'];
+		this.broadcast({
+			method: 'move',
+			error: 0,
+			data: { user: uuid, x: data['x'], y: data['y'], angle: data['angle'] },
+		});
 	}
 
-	getMessage(uuid: string, data: any): void {
-		const res: any = { method: "message" };
+	getMessage(uuid: string, data: Record<string, unknown>): void {
 		const conn = this.connections[uuid];
 		if (!conn?.user) {
-			res.error = 1;
-			res.message = "User not in room";
-		} else if (!("message" in data)) {
-			res.error = 2;
-			res.message = "Missing message";
-		} else if (data.message.trim() === "") {
-			res.error = 2;
-			res.message = "Message is empty";
-		} else {
-			res.error = 0;
-			res.data = {
-				name: conn.user!.name,
-				message: data.message.trim().substring(0, 250),
-			};
-			this.broadcast(res);
+			this.send(uuid, {
+				method: 'message',
+				error: 1,
+				message: 'User not in room',
+			});
+			return;
 		}
-		if (res.error !== 0) this.send(uuid, res);
+		if (typeof data['message'] !== 'string') {
+			this.send(uuid, {
+				method: 'message',
+				error: 2,
+				message: 'Missing message',
+			});
+			return;
+		}
+		if (data['message'].trim() === '') {
+			this.send(uuid, {
+				method: 'message',
+				error: 2,
+				message: 'Message is empty',
+			});
+			return;
+		}
+		this.broadcast({
+			method: 'message',
+			error: 0,
+			data: {
+				name: conn.user.name,
+				message: data['message'].trim().substring(0, 250),
+			},
+		});
 	}
 
 	getUsers(uuid: string): void {
@@ -227,6 +263,6 @@ export class Socket {
 		for (const [id, c] of Object.entries(this.connections)) {
 			if (c.user) users.push({ uuid: id, user: c.user });
 		}
-		this.send(uuid, { method: "users", error: 0, data: users });
+		this.send(uuid, { method: 'users', error: 0, data: users });
 	}
 }

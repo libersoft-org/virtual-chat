@@ -16,10 +16,7 @@
 	let world: World;
 	let network: Network;
 
-	const wsUrl = import.meta.env['VITE_BACKEND_URL']
-		|| (import.meta.env.DEV
-			? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:7010`
-			: `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
+	const wsUrl = import.meta.env['VITE_BACKEND_URL'] || (import.meta.env.DEV ? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:7010` : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
 
 	onMount(() => {
 		world = new World(container, (x: number, y: number, angle: number) => {
@@ -50,7 +47,7 @@
 				world.moveOtherPlayer(data.user, data.x, data.y, data.angle);
 			},
 			onMessage: (data: any) => {
-				chatMessages.update((msgs) => [...msgs, { name: data.name, message: data.message }]);
+				chatMessages.update(msgs => [...msgs, { name: data.name, message: data.message }]);
 				world.createChatBubble(data.message);
 			},
 			onUsers: (data: any) => {
@@ -59,7 +56,7 @@
 						world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.x, entry.user.y, entry.user.angle);
 					}
 				}
-			}
+			},
 		});
 	});
 
@@ -76,6 +73,16 @@
 	}
 </script>
 
+<style>
+	#world-container {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}
+</style>
+
 <div id="world-container" bind:this={container}></div>
 
 {#if !$isLoggedIn}
@@ -90,13 +97,3 @@
 
 <StatusBar />
 <Alert />
-
-<style>
-	#world-container {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

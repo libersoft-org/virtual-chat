@@ -1,20 +1,20 @@
 <script lang="ts">
- let { onsend }: { onsend: (text: string) => void } = $props();
- let message = $state('');
- let inputEl: HTMLInputElement;
+	let { onsend }: { onsend: (text: string) => void } = $props();
+	let message = $state('');
+	let inputEl: HTMLInputElement;
 
- function onKeyDown(event: KeyboardEvent) {
-  if (event.key === 'Enter') {
-   if (document.activeElement !== inputEl) {
-    inputEl.focus();
-    return;
-   }
-   if (message.trim()) {
-    onsend(message);
-    message = '';
-   }
-  }
- }
+	function onKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			if (document.activeElement !== inputEl) {
+				inputEl.focus();
+				return;
+			}
+			if (message.trim()) {
+				onsend(message);
+				message = '';
+			}
+		}
+	}
 </script>
 
 <svelte:document onkeydown={onKeyDown} />

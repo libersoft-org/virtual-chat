@@ -68,7 +68,7 @@ export class Network {
 	sendEnter(name: string, sex: boolean | null, color: number) {
 		this.send({
 			method: 'enter',
-			data: { name, sex, color: Number(color) }
+			data: { name, sex, color: Number(color) },
 		});
 	}
 
@@ -87,7 +87,7 @@ export class Network {
 	sendMessage(text: string) {
 		this.send({
 			method: 'message',
-			data: { message: text }
+			data: { message: text },
 		});
 	}
 }

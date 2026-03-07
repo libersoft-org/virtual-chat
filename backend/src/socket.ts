@@ -39,4 +39,18 @@ export class Socket {
 			if (id !== excludeUuid) ws.send(data);
 		}
 	}
+
+	broadcastToUsers(obj: object): void {
+		const data = JSON.stringify(obj);
+		for (const [id, ws] of Object.entries(this.connections)) {
+			if (this.api.users[id]) ws.send(data);
+		}
+	}
+
+	broadcastToUsersExcept(excludeUuid: string, obj: object): void {
+		const data = JSON.stringify(obj);
+		for (const [id, ws] of Object.entries(this.connections)) {
+			if (id !== excludeUuid && this.api.users[id]) ws.send(data);
+		}
+	}
 }

@@ -62,7 +62,7 @@ export class API {
 	}
 
 	leave(uuid: string): void {
-		this.socket.broadcast({ method: 'leave', error: '', data: { uuid } });
+		this.socket.broadcastToUsers({ method: 'leave', error: '', data: { uuid } });
 		delete this.users[uuid];
 		this.count();
 	}
@@ -113,7 +113,7 @@ export class API {
 		this.count();
 		const enterData = { uuid, ...this.users[uuid] };
 		this.socket.send(uuid, { method: 'enter', error: '', data: enterData });
-		this.socket.broadcastExcept(uuid, {
+		this.socket.broadcastToUsersExcept(uuid, {
 			method: 'user_entered',
 			error: '',
 			data: enterData,
@@ -147,7 +147,7 @@ export class API {
 		user.x = data['x'];
 		user.y = data['y'];
 		user.angle = data['angle'];
-		this.socket.broadcast({
+		this.socket.broadcastToUsers({
 			method: 'move',
 			error: '',
 			data: { user: uuid, x: data['x'], y: data['y'], angle: data['angle'] },
@@ -169,7 +169,7 @@ export class API {
 			return;
 		}
 		if (!this.rateLimit(uuid, 'message')) return;
-		this.socket.broadcast({
+		this.socket.broadcastToUsers({
 			method: 'message',
 			error: '',
 			data: {

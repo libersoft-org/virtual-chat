@@ -92,8 +92,8 @@
 	<FpsCounter />
 	<MessageInput onsend={handleSendMessage} />
 	<LeaveButton onleave={handleLeave} />
-	<DebugPanel />
 {/if}
 
+<DebugPanel />
 <StatusBar />
 <Alert />

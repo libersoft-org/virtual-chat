@@ -5,9 +5,10 @@
 
 	let { onenter }: { onenter: (name: string, sex: boolean | null, color: number) => void } = $props();
 
-	let name = $state(localStorage.getItem('vc_name') || '');
-	let sex = $state(localStorage.getItem('vc_sex') || '');
-	let color = $state(Number(localStorage.getItem('vc_color')) || 1);
+	const saved = JSON.parse(localStorage.getItem('vc_login') || '{}');
+	let name = $state(saved.name || '');
+	let sex = $state(saved.sex || '');
+	let color = $state(saved.color || 1);
 	let loading = $state(false);
 
 	alerts.subscribe(items => {
@@ -21,9 +22,7 @@
 	function enter() {
 		if (loading) return;
 		loading = true;
-		localStorage.setItem('vc_name', name);
-		localStorage.setItem('vc_sex', sex);
-		localStorage.setItem('vc_color', String(color));
+		localStorage.setItem('vc_login', JSON.stringify({ name, sex, color }));
 		let sexValue: boolean | null = sex === '1' ? true : sex === '0' ? false : null;
 		onenter(name, sexValue, color);
 	}

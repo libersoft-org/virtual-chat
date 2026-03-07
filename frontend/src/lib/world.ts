@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { fpsValue } from './stores';
 
 export class World {
@@ -142,7 +143,7 @@ export class World {
 
 	getUser(_name = 'User', _color = 1, _sex = true, _x = 0, _y = 0, _angle = 0) {
 		const baseColor = World.colorMap[_color] ?? 0xff0000;
-		const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+		const cubeGeometry = new RoundedBoxGeometry(1, 1, 1, 4, 0.1);
 		const baseMaterial = new THREE.MeshStandardMaterial({ color: baseColor });
 		const faceMaterial = this.createFaceMaterial(baseColor);
 		// Three.js face order: +X, -X, +Y, -Y, +Z, -Z
@@ -309,7 +310,7 @@ export class World {
 	addOtherPlayer(uuid: string, name: string, color: number, x: number, y: number, angle: number) {
 		if (this.otherPlayers.has(uuid)) return;
 		const baseColor = World.colorMap[color] ?? 0x888888;
-		const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+		const cubeGeometry = new RoundedBoxGeometry(1, 1, 1, 4, 0.1);
 		const baseMaterial = new THREE.MeshStandardMaterial({ color: baseColor });
 		const faceMaterial = this.createFaceMaterial(baseColor);
 		const cubeMaterials = [baseMaterial, baseMaterial, baseMaterial, baseMaterial, faceMaterial, baseMaterial];

@@ -6,6 +6,7 @@
 
 ## Features
 
+- If server disconnects, move user to initial page or auto reconnect and spawn on specified spot
 - Optimize code in client
 - Send location to other users while moving every second - now it only has a final destination - not synchronized on network
 - Add rotation by buttons, not just mouse right click and drag
@@ -14,9 +15,7 @@
 - Client - optimize for mobiles (responsivity, control etc.)
 - Add log levels - add in settings from which level we want to log - for example - only WARN and ERR, no INFO / DEBUG
 - Add server address in initial form (saved in local storage)
-- If server disconnects, move user to initial page
 - Add network users on client - make "Enter" in login form working
-- Reconnect when disconnected (after 5 secs)
 - Add screenshot for README.md
 - Moderators - kicking, banning etc.
 - Add reactions (flying hearts and emojis above cube - like bubbles)

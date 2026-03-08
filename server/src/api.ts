@@ -22,7 +22,6 @@ export class API {
 		const now = Date.now();
 		for (const uuid of Object.keys(this.users)) {
 			if (now - (this.lastActivity[uuid] ?? 0) > this.idleTimeout) {
-				Common.addLog(`Kicking idle user: ${uuid}`);
 				this.doLeave(uuid, 'idle');
 			}
 		}
@@ -78,6 +77,9 @@ export class API {
 	}
 
 	doLeave(uuid: string, reason?: string): void {
+		const name = this.users[uuid]?.name;
+		if (reason === 'idle') Common.addLog(`${name} (${uuid}) was kicked due to inactivity`);
+		else Common.addLog(`${name} (${uuid}) left`);
 		const data: LeaveData = { uuid, ...(reason ? { reason } : {}) };
 		this.socket.broadcastToUsers({ method: 'leave', data });
 		delete this.users[uuid];
@@ -131,6 +133,7 @@ export class API {
 		};
 		this.lastActivity[uuid] = Date.now();
 		this.count();
+		Common.addLog(`Connection ${uuid} entered as ${this.users[uuid].name}`);
 		const enterData: EnterData = { uuid, ...this.users[uuid] };
 		this.socket.send(uuid, { method: 'enter', data: enterData });
 		this.socket.broadcastToUsersExcept(uuid, {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createSession, type Session } from '$lib/session';
-	import { isLoggedIn } from '$lib/stores';
+	import { isLoggedIn, debugMode } from '$lib/stores';
 	import LoginForm from '../components/LoginForm.svelte';
 	import ChatWindow from '../components/ChatWindow.svelte';
 	import MessageInput from '../components/MessageInput.svelte';
@@ -20,6 +20,15 @@
 	}
 </script>
 
+<style>
+	#debug {
+		position: absolute;
+		top: 50px;
+		right: 10px;
+		z-index: 10;
+	}
+</style>
+
 <World onready={initSession} />
 
 {#if !$isLoggedIn}
@@ -29,9 +38,12 @@
 	<FpsCounter />
 	<MessageInput onsend={session.sendMessage} />
 	<LeaveButton onleave={session.leave} />
+	<button class="button" id="debug" onclick={() => debugMode.update(v => !v)}>Debug</button>
 	<ExpressionPicker onpick={session.setExpression} />
 {/if}
 
-<DebugPanel />
+{#if $debugMode}
+	<DebugPanel />
+{/if}
 <StatusBar />
 <Alert />

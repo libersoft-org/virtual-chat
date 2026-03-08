@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { get } from 'svelte/store';
+import { debugMode } from './stores.ts';
 import type { World } from './world.ts';
 
 export function setupInput(world: World): () => void {
@@ -63,13 +65,16 @@ function createDotAtPoint(x: number, y: number, world: World) {
 
 function setUserRotation(x: number, y: number, world: World) {
 	if (!world.user) return;
-	createDotAtPoint(world.user.position.x, world.user.position.z, world);
-	createDotAtPoint(x, y, world);
+	if (get(debugMode)) {
+		createDotAtPoint(world.user.position.x, world.user.position.z, world);
+		createDotAtPoint(x, y, world);
+		const direction = new THREE.Vector3(x - world.user.position.x, 0, y - world.user.position.z);
+		direction.normalize();
+		const distance = new THREE.Vector3(world.user.position.x, 0, world.user.position.z).distanceTo(new THREE.Vector3(x, 0, y));
+		const arrowHelper = new THREE.ArrowHelper(direction, world.user.position.clone(), distance, 0xff0000);
+		world.scene.add(arrowHelper);
+		setTimeout(() => world.scene.remove(arrowHelper), 2000);
+	}
 	const direction = new THREE.Vector3(x - world.user.position.x, 0, y - world.user.position.z);
-	direction.normalize();
-	const distance = new THREE.Vector3(world.user.position.x, 0, world.user.position.z).distanceTo(new THREE.Vector3(x, 0, y));
-	const arrowHelper = new THREE.ArrowHelper(direction, world.user.position.clone(), distance, 0xff0000);
-	world.scene.add(arrowHelper);
-	setTimeout(() => world.scene.remove(arrowHelper), 2000);
 	world.user.rotation.y = Math.atan2(direction.x, direction.z);
 }

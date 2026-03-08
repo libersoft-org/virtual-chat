@@ -15,9 +15,16 @@
 		color: #fff;
 		z-index: 10;
 	}
+
+	.dot {
+		display: inline-block;
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+	}
 </style>
 
 <div id="status">
-	<div class="dot {$connectionStatus.color}"></div>
+	<div class="dot" style="background-color: {$connectionStatus.color}"></div>
 	<div class="text">{$connectionStatus.text}</div>
 </div>

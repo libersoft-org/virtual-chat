@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { fpsValue } from './stores.ts';
 import { createRenderer, createCSS2DRenderer, createCamera, createLights, createFloor } from './scene.ts';
-import { colorMap, createCharacter, createNameTag, updateFaceTexture, type FaceMaterial } from './character.ts';
+import { getThreeColor, createCharacter, createNameTag, updateFaceTexture, type FaceMaterial } from './character.ts';
 import { setupInput } from './input.ts';
 
 export class World {
@@ -72,7 +72,7 @@ export class World {
 	}
 
 	getUser(_name = 'User', _color = 1, _sex = true, _x = 0, _y = 0, _angle = 0) {
-		this.userColor = colorMap[_color] ?? 0xff0000;
+		this.userColor = getThreeColor(_color);
 		const { group, face } = createCharacter(_color, 1);
 		this.userFace = face;
 		this.user = group;
@@ -151,7 +151,7 @@ export class World {
 
 	addOtherPlayer(uuid: string, name: string, color: number, x: number, y: number, angle: number, expression = 1) {
 		if (this.otherPlayers.has(uuid)) return;
-		const baseColor = colorMap[color] ?? 0x888888;
+		const baseColor = getThreeColor(color);
 		const { group, face } = createCharacter(color, expression);
 		const angleRad = (angle * Math.PI) / 180;
 		group.position.set(x, 0, y);

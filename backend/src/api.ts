@@ -82,7 +82,7 @@ export class API {
 		if (!('sex' in data)) return ErrorCode.MISSING_SEX;
 		if (data['sex'] !== true && data['sex'] !== false) return ErrorCode.WRONG_SEX;
 		if (!('color' in data)) return ErrorCode.MISSING_COLOR;
-		if (!Number.isInteger(data['color']) || (data['color'] as number) < 1 || (data['color'] as number) > 8) return ErrorCode.WRONG_COLOR;
+		if (!Number.isInteger(data['color']) || (data['color'] as number) < 1 || (data['color'] as number) > 9) return ErrorCode.WRONG_COLOR;
 		return null;
 	}
 

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { netLog, type NetLogItem } from '$lib/stores';
 	let items: NetLogItem[] = $state([]);
-	let open = $state(false);
 	let logEl: HTMLDivElement = $state() as HTMLDivElement;
 	netLog.subscribe(v => {
 		items = v;
@@ -21,31 +20,13 @@
 		border-radius: 10px;
 		display: flex;
 		flex-direction: column;
+		height: 300px;
+		width: 450px;
 	}
 
 	.header {
 		padding: 10px;
 		font-weight: bold;
-		cursor: pointer;
-		user-select: none;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		background: none;
-		border: none;
-		color: var(--form-text);
-		font-size: inherit;
-		font-family: inherit;
-		width: 100%;
-		text-align: left;
-	}
-
-	.content {
-		display: flex;
-		flex-direction: column;
-		height: 300px;
-		width: 450px;
-		border-top: 1px solid #000;
 	}
 
 	.log {
@@ -53,6 +34,7 @@
 		flex: 1;
 		font-size: 11px;
 		padding: 8px;
+		border-top: 1px solid #000;
 	}
 
 	.entry {
@@ -91,24 +73,17 @@
 </style>
 
 <div class="panel">
-	<button class="header" onclick={() => (open = !open)}>
-		{open ? '▼' : '▶'} Network log ({items.length})
-	</button>
-
-	{#if open}
-		<div class="content">
-			<div class="log" bind:this={logEl}>
-				{#each items as item}
-					<div class="entry {item.dir}">
-						<span class="time">{item.time}</span>
-						{item.dir === 'out' ? '→' : '←'}
-						{item.json}
-					</div>
-				{/each}
+	<div class="header">Network log ({items.length})</div>
+	<div class="log" bind:this={logEl}>
+		{#each items as item}
+			<div class="entry {item.dir}">
+				<span class="time">{item.time}</span>
+				{item.dir === 'out' ? '→' : '←'}
+				{item.json}
 			</div>
-			<div class="toolbar">
-				<button onclick={() => netLog.clear()}>Clear</button>
-			</div>
-		</div>
-	{/if}
+		{/each}
+	</div>
+	<div class="toolbar">
+		<button onclick={() => netLog.clear()}>Clear</button>
+	</div>
 </div>

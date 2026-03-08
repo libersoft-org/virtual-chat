@@ -2,16 +2,18 @@ import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-export const colorMap: Record<number, number> = {
-	1: 0xff0000, // red
-	2: 0xff8800, // orange
-	3: 0xffff00, // yellow
-	4: 0x00cc00, // green
-	5: 0x0000ff, // blue
-	6: 0x9900ff, // violet
-	7: 0x888888, // gray
-	8: 0xffffff, // white
-};
+export const playerColors = ['#f00', '#f80', '#ff0', '#0c0', '#00f', '#80f', '#333', '#888', '#fff'];
+
+function cssToHex(css: string): number {
+	const r = parseInt(css[1]! + css[1]!, 16);
+	const g = parseInt(css[2]! + css[2]!, 16);
+	const b = parseInt(css[3]! + css[3]!, 16);
+	return (r << 16) | (g << 8) | b;
+}
+
+export function getThreeColor(index: number): number {
+	return cssToHex(playerColors[index - 1] ?? '#888');
+}
 
 export interface FaceMaterial {
 	material: THREE.MeshStandardMaterial;
@@ -54,7 +56,7 @@ export function updateFaceTexture(ctx: CanvasRenderingContext2D, texture: THREE.
 }
 
 export function createCharacter(color: number, expression: number): { group: THREE.Group; face: FaceMaterial } {
-	const baseColor = colorMap[color] ?? 0x888888;
+	const baseColor = getThreeColor(color);
 	const cubeGeometry = new RoundedBoxGeometry(1, 1, 1, 4, 0.1);
 	const baseMaterial = new THREE.MeshStandardMaterial({ color: baseColor });
 	const face = createFaceMaterial(baseColor, expression);

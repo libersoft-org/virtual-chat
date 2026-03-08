@@ -1,6 +1,5 @@
 <script lang="ts">
-	const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'violet', 'gray', 'white'];
-
+	import { playerColors } from '$lib/character';
 	import { alerts } from '$lib/stores';
 
 	let { onenter }: { onenter: (name: string, sex: boolean | null, color: number) => void } = $props();
@@ -78,11 +77,11 @@
 		<option value="0">Female</option>
 	</select>
 	<div class="color-picker">
-		{#each colors as c, i}
-			<button type="button" class="color {c}" class:active={color === i + 1} onclick={() => setColor(i + 1)} aria-label="Color {c}"></button>
+		{#each playerColors as c, i}
+			<button type="button" class="color" class:active={color === i + 1} style="background-color: {c}" onclick={() => setColor(i + 1)} aria-label="Color {i + 1}"></button>
 		{/each}
 	</div>
-	<button id="enter" class="button" class:orange={!loading} class:gray={loading} onclick={enter}>
+	<button id="enter" class="button" style="background-color: {loading ? '#888' : '#f80'}" onclick={enter}>
 		{#if loading}
 			<div class="loader"></div>
 		{:else}

@@ -7,10 +7,11 @@ interface ChatMessage {
 
 export const connectionStatus = writable({
 	text: 'Not connected',
-	color: 'red',
+	color: '#f00',
 });
 export const chatMessages = writable<ChatMessage[]>([]);
 export const isLoggedIn = writable(false);
+export const debugMode = writable(false);
 export const fpsValue = writable('-');
 export interface AlertItem {
 	id: number;

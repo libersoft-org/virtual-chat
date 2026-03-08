@@ -53,7 +53,7 @@ export class Network {
 		this.ws = new WebSocket(url);
 
 		this.ws.onopen = () => {
-			connectionStatus.set({ text: 'Connected', color: 'green' });
+			connectionStatus.set({ text: 'Connected', color: '#0f0' });
 		};
 
 		this.ws.onmessage = (e: MessageEvent) => {
@@ -73,7 +73,7 @@ export class Network {
 		};
 
 		this.ws.onclose = () => {
-			connectionStatus.set({ text: 'Disconnected', color: 'red' });
+			connectionStatus.set({ text: 'Disconnected', color: '#f00' });
 		};
 	}
 

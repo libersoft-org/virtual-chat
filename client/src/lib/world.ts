@@ -125,7 +125,11 @@ export class World {
 
 	updateCamera() {
 		const target = this.user ? this.user.position : new THREE.Vector3(0, 0, 0);
-		this.camera.position.set(target.x + Math.sin(this.cameraAngle) * this.cameraRadius, target.y + this.cameraHeight, target.z + Math.cos(this.cameraAngle) * this.cameraRadius);
+		this.camera.position.set(
+			target.x + Math.sin(this.cameraAngle) * this.cameraRadius,
+			target.y + this.cameraHeight,
+			target.z + Math.cos(this.cameraAngle) * this.cameraRadius
+		);
 		this.camera.lookAt(target);
 	}
 
@@ -134,9 +138,9 @@ export class World {
 		for (const bubble of this.chatBubbles) bubble.obj.position.set(bubble.user.position.x + 0.2, bubble.user.position.y + 2, bubble.user.position.z);
 	}
 
-	createLabel(name: string) {
+	createLabel(name: string, sex: boolean) {
 		if (!this.user) return;
-		const label = createNameTag(name);
+		const label = createNameTag(name, sex);
 		this.scene.add(label);
 		label.position.set(this.user.position.x, this.user.position.y - 1, this.user.position.z);
 		this.labelObject = label;
@@ -160,7 +164,7 @@ export class World {
 		this.otherPlayers.clear();
 	}
 
-	addOtherPlayer(uuid: string, name: string, color: number, x: number, z: number, angle: number, expression = 1) {
+	addOtherPlayer(uuid: string, name: string, color: number, sex: boolean, x: number, z: number, angle: number, expression = 1) {
 		if (this.otherPlayers.has(uuid)) return;
 		const baseColor = getThreeColor(color);
 		const { group, face } = createCharacter(color, expression);
@@ -168,7 +172,7 @@ export class World {
 		group.position.set(x, 0, z);
 		group.rotation.y = angleRad;
 		this.scene.add(group);
-		const label = createNameTag(name);
+		const label = createNameTag(name, sex);
 		label.position.set(x, -1, z);
 		this.scene.add(label);
 		const target = new THREE.Vector3(x, 0, z);

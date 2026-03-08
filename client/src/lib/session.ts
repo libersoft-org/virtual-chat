@@ -17,11 +17,11 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 			network.myUuid = data.uuid;
 			isLoggedIn.set(true);
 			world.spawnUser(data.name, data.color, data.sex, data.x, data.z, data.angle);
-			world.createLabel(data.name);
+			world.createLabel(data.name, data.sex);
 			network.sendUsers();
 		},
 		onUserEntered: (data: EnterData) => {
-			world.addOtherPlayer(data.uuid, data.name, data.color, data.x, data.z, data.angle, data.expression);
+			world.addOtherPlayer(data.uuid, data.name, data.color, data.sex, data.x, data.z, data.angle, data.expression);
 		},
 		onLeave: (data: LeaveData) => {
 			if (data.uuid === network.myUuid) {
@@ -47,7 +47,7 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 		onUsers: (data: UsersEntry[]) => {
 			for (const entry of data) {
 				if (entry.uuid !== network.myUuid) {
-					world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.color, entry.user.x, entry.user.z, entry.user.angle, entry.user.expression);
+					world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.color, entry.user.sex, entry.user.x, entry.user.z, entry.user.angle, entry.user.expression);
 				}
 			}
 		},

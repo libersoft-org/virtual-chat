@@ -70,9 +70,10 @@ export function createCharacter(color: number, expression: number): { group: THR
 	return { group, face };
 }
 
-export function createNameTag(name: string): CSS2DObject {
+export function createNameTag(name: string, sex: boolean): CSS2DObject {
 	const span = document.createElement('span');
 	span.textContent = name;
 	span.classList.add('name-tag');
+	span.style.color = sex ? '#22f' : '#a22';
 	return new CSS2DObject(span);
 }

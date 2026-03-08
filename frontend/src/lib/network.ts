@@ -36,9 +36,20 @@ export class Network {
 	ws: WebSocket;
 	callbacks: NetworkCallbacks;
 	myUuid: string | undefined;
+	// Data from JSON.parse is untyped at this boundary — callbacks enforce types
+	handlers: Record<string, (data: any) => void>;
 
 	constructor(url: string, callbacks: NetworkCallbacks) {
 		this.callbacks = callbacks;
+		this.handlers = {
+			enter: d => callbacks.onEnter(d),
+			user_entered: d => callbacks.onUserEntered(d),
+			leave: d => callbacks.onLeave(d),
+			move: d => callbacks.onMove(d),
+			message: d => callbacks.onMessage(d),
+			users: d => callbacks.onUsers(d),
+			expression: d => callbacks.onExpression(d),
+		};
 		this.ws = new WebSocket(url);
 
 		this.ws.onopen = () => {
@@ -49,31 +60,9 @@ export class Network {
 			netLog.add('in', e.data);
 			const res = JSON.parse(e.data);
 			if (!res.error) {
-				switch (res.method) {
-					case 'enter':
-						this.callbacks.onEnter(res.data);
-						break;
-					case 'user_entered':
-						this.callbacks.onUserEntered(res.data);
-						break;
-					case 'leave':
-						this.callbacks.onLeave(res.data);
-						break;
-					case 'move':
-						this.callbacks.onMove(res.data);
-						break;
-					case 'message':
-						this.callbacks.onMessage(res.data);
-						break;
-					case 'users':
-						this.callbacks.onUsers(res.data);
-						break;
-					case 'expression':
-						this.callbacks.onExpression(res.data);
-						break;
-					default:
-						console.error('Unknown method from server:', res.method);
-				}
+				const handler = this.handlers[res.method as string];
+				if (handler) handler(res.data);
+				else console.error('Unknown method from server:', res.method);
 			} else {
 				alerts.add(errorMessages[res.error as ErrorCode] || `Unknown error: ${res.error}`);
 			}

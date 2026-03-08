@@ -1,19 +1,21 @@
 <script lang="ts">
-	import { fpsValue, debugMode } from '../lib/stores.js';
+	import { fpsValue } from '../lib/stores.js';
 </script>
 
 <style>
 	#fps {
-		position: absolute;
-		top: 10px;
-		left: calc(25vw + 20px);
+		position: fixed;
+		bottom: 36vh;
+		right: 1vh;
+		z-index: 100;
 		font-weight: bold;
-		font-size: 20px;
+		font-size: 2vh;
 		color: #f00;
-		z-index: 10;
+		padding: 1vh;
+		background-color: var(--form-bg);
+		border: 0.2vh solid #000;
+		border-radius: 1vh;
 	}
 </style>
 
-{#if $debugMode}
-	<div id="fps">FPS: {$fpsValue}</div>
-{/if}
+<div id="fps">FPS: {$fpsValue}</div>

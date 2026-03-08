@@ -7,7 +7,7 @@
 	import StatusBar from '../components/StatusBar.svelte';
 	import FpsCounter from '../components/FpsCounter.svelte';
 	import Alert from '../components/Alert.svelte';
-	import DebugPanel from '../components/DebugPanel.svelte';
+	import NetworkLog from '../components/NetworkLog.svelte';
 	import ExpressionPicker from '../components/ExpressionPicker.svelte';
 	import Button from '../components/Button.svelte';
 	import World from '../components/World.svelte';
@@ -51,16 +51,15 @@
 		<ChatWindow />
 		<MessageInput onsend={session.sendMessage} />
 	</div>
-	<FpsCounter />
 	<div class="buttons">
 		<Button onclick={session.leave} text="Leave" />
 		<Button onclick={() => debugMode.update(v => !v)} text="Debug" />
 	</div>
 	<ExpressionPicker onpick={session.setExpression} />
 {/if}
-
 {#if $debugMode}
-	<DebugPanel />
+	<FpsCounter />
+	<NetworkLog />
 {/if}
 <StatusBar />
 <Alert />

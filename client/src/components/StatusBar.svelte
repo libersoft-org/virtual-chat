@@ -6,20 +6,21 @@
 	#status {
 		position: absolute;
 		display: flex;
-		bottom: 0px;
-		padding: 10px;
-		gap: 10px;
+		bottom: 0;
+		padding: 1vh;
+		gap: 1vh;
 		align-items: center;
-		width: calc(100% - 20px);
+		width: calc(100% - 2vh);
 		background-color: rgba(50, 50, 50, 0.75);
 		color: #fff;
 		z-index: 10;
+		font-size: 1.6vh;
 	}
 
 	.dot {
 		display: inline-block;
-		width: 20px;
-		height: 20px;
+		width: 2vh;
+		height: 2vh;
 		border-radius: 50%;
 	}
 </style>

@@ -13,8 +13,8 @@
 <style>
 	.picker {
 		position: absolute;
-		bottom: 4vh;
-		left: 1vw;
+		bottom: 5vh;
+		left: 1vh;
 		z-index: 10;
 	}
 

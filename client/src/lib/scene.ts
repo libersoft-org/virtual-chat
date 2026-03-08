@@ -30,9 +30,9 @@ export function createCamera(): THREE.PerspectiveCamera {
 }
 
 export function createLights(scene: THREE.Scene): THREE.DirectionalLight {
-	const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+	const ambient = new THREE.AmbientLight(0xffffff, 1.0);
 	scene.add(ambient);
-	const light = new THREE.DirectionalLight(0xffffff, 1.2);
+	const light = new THREE.DirectionalLight(0xffffff, 3.0);
 	light.position.set(10, 15, 5);
 	light.castShadow = true;
 	light.shadow.mapSize.width = 1024;
@@ -55,11 +55,18 @@ export function createFloor(scene: THREE.Scene): THREE.Mesh {
 	const x = 20;
 	const y = 10;
 	const textureLoader = new THREE.TextureLoader();
-	const floorColorTexture = textureLoader.load('img/ground_0014_color_4k.jpg');
-	floorColorTexture.colorSpace = THREE.SRGBColorSpace;
+	const tileSize = 10;
+	const loadTex = (path: string) => {
+		const tex = textureLoader.load(path);
+		tex.wrapS = THREE.RepeatWrapping;
+		tex.wrapT = THREE.RepeatWrapping;
+		tex.repeat.set(x / tileSize, y / tileSize);
+		return tex;
+	};
+	const colorTex = loadTex('img/tiles_0115_color_1k.jpg');
+	colorTex.colorSpace = THREE.SRGBColorSpace;
 	const floorMaterial = new THREE.MeshStandardMaterial({
-		map: floorColorTexture,
-		metalness: 0,
+		map: colorTex,
 	});
 	const floorGeometry = new THREE.PlaneGeometry(x, y);
 	const floor = new THREE.Mesh(floorGeometry, floorMaterial);

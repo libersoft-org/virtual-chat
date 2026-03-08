@@ -18,7 +18,6 @@ const config = {
 			handleHttpError: 'warn',
 		},
 		alias: {
-			'@shared': path.resolve(__dirname, '../shared/src/index.ts'),
 			'@shared/*': path.resolve(__dirname, '../shared/src'),
 		},
 	},

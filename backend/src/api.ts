@@ -1,14 +1,6 @@
 import { Common } from './common';
+import { ErrorCode, type UserData, type UsersEntry } from '@shared/protocol.ts';
 import type { Socket } from './socket';
-interface UserData {
-	name: string;
-	color: number;
-	sex: boolean;
-	x: number;
-	y: number;
-	angle: number;
-	expression: number;
-}
 
 export class API {
 	socket: Socket;
@@ -33,11 +25,11 @@ export class API {
 		try {
 			msg = JSON.parse(json);
 		} catch {
-			this.socket.send(uuid, { error: 'INVALID_JSON' });
+			this.socket.send(uuid, { error: ErrorCode.INVALID_JSON });
 			return;
 		}
 		if (!('method' in msg) || !('data' in msg)) {
-			this.socket.send(uuid, { error: 'INVALID_COMMAND' });
+			this.socket.send(uuid, { error: ErrorCode.INVALID_COMMAND });
 			return;
 		}
 		const method = msg['method'] as string;
@@ -45,7 +37,7 @@ export class API {
 		Common.addLog(`API ${method} from ${uuid}`);
 		const handler = this.methods[method];
 		if (handler) handler(uuid, data);
-		else this.socket.send(uuid, { method, error: 'UNKNOWN_METHOD' });
+		else this.socket.send(uuid, { method, error: ErrorCode.UNKNOWN_METHOD });
 	}
 
 	onConnect(_uuid: string): void {
@@ -76,27 +68,27 @@ export class API {
 		const limit = type === 'move' ? (Common.settings.limits?.moves_per_second ?? 10) : (Common.settings.limits?.messages_per_second ?? 3);
 		while (timestamps.length > 0 && timestamps[0]! <= now - 1000) timestamps.shift();
 		if (timestamps.length >= limit) {
-			this.socket.send(uuid, { method: type, error: 'RATE_LIMITED' });
+			this.socket.send(uuid, { method: type, error: ErrorCode.RATE_LIMITED });
 			return false;
 		}
 		timestamps.push(now);
 		return true;
 	}
 
-	validateEnterData(data: Record<string, unknown>): string | null {
-		if (typeof data['name'] !== 'string') return 'MISSING_NAME';
-		if (!/^[A-Za-z0-9._-]{3,16}$/.test(data['name'].trim())) return 'WRONG_NAME';
-		if (!('sex' in data)) return 'MISSING_SEX';
-		if (data['sex'] !== true && data['sex'] !== false) return 'WRONG_SEX';
-		if (!('color' in data)) return 'MISSING_COLOR';
-		if (!Number.isInteger(data['color']) || (data['color'] as number) < 1 || (data['color'] as number) > 8) return 'WRONG_COLOR';
+	validateEnterData(data: Record<string, unknown>): ErrorCode | null {
+		if (typeof data['name'] !== 'string') return ErrorCode.MISSING_NAME;
+		if (!/^[A-Za-z0-9._-]{3,16}$/.test(data['name'].trim())) return ErrorCode.WRONG_NAME;
+		if (!('sex' in data)) return ErrorCode.MISSING_SEX;
+		if (data['sex'] !== true && data['sex'] !== false) return ErrorCode.WRONG_SEX;
+		if (!('color' in data)) return ErrorCode.MISSING_COLOR;
+		if (!Number.isInteger(data['color']) || (data['color'] as number) < 1 || (data['color'] as number) > 8) return ErrorCode.WRONG_COLOR;
 		return null;
 	}
 
 	getEnter(uuid: string, data: Record<string, unknown>): void {
 		if (!this.socket.connections[uuid]) return;
 		if (this.users[uuid]) {
-			this.socket.send(uuid, { method: 'enter', error: 'ALREADY_IN_ROOM' });
+			this.socket.send(uuid, { method: 'enter', error: ErrorCode.ALREADY_IN_ROOM });
 			return;
 		}
 		const validationError = this.validateEnterData(data);
@@ -124,26 +116,26 @@ export class API {
 	}
 
 	getLeave(uuid: string): void {
-		if (!this.users[uuid]) this.socket.send(uuid, { method: 'leave', error: 'NOT_IN_ROOM' });
+		if (!this.users[uuid]) this.socket.send(uuid, { method: 'leave', error: ErrorCode.NOT_IN_ROOM });
 		else this.leave(uuid);
 	}
 
 	getMove(uuid: string, data: Record<string, unknown>): void {
 		const user = this.users[uuid];
 		if (!user) {
-			this.socket.send(uuid, { method: 'move', error: 'NOT_IN_ROOM' });
+			this.socket.send(uuid, { method: 'move', error: ErrorCode.NOT_IN_ROOM });
 			return;
 		}
 		if (typeof data['x'] !== 'number' || typeof data['y'] !== 'number' || typeof data['angle'] !== 'number' || !Number.isFinite(data['x']) || !Number.isFinite(data['y']) || !Number.isFinite(data['angle'])) {
-			this.socket.send(uuid, { method: 'move', error: 'INVALID_COORDS' });
+			this.socket.send(uuid, { method: 'move', error: ErrorCode.INVALID_COORDS });
 			return;
 		}
 		if (data['x'] < -10 || data['x'] > 10 || data['y'] < -5 || data['y'] > 5) {
-			this.socket.send(uuid, { method: 'move', error: 'WRONG_COORDS' });
+			this.socket.send(uuid, { method: 'move', error: ErrorCode.WRONG_COORDS });
 			return;
 		}
 		if (data['angle'] < 0 || data['angle'] > 360) {
-			this.socket.send(uuid, { method: 'move', error: 'WRONG_ANGLE' });
+			this.socket.send(uuid, { method: 'move', error: ErrorCode.WRONG_ANGLE });
 			return;
 		}
 		if (!this.rateLimit(uuid, 'move')) return;
@@ -160,15 +152,15 @@ export class API {
 	getMessage(uuid: string, data: Record<string, unknown>): void {
 		const user = this.users[uuid];
 		if (!user) {
-			this.socket.send(uuid, { method: 'message', error: 'NOT_IN_ROOM' });
+			this.socket.send(uuid, { method: 'message', error: ErrorCode.NOT_IN_ROOM });
 			return;
 		}
 		if (typeof data['message'] !== 'string') {
-			this.socket.send(uuid, { method: 'message', error: 'MISSING_MESSAGE' });
+			this.socket.send(uuid, { method: 'message', error: ErrorCode.MISSING_MESSAGE });
 			return;
 		}
 		if (data['message'].trim() === '') {
-			this.socket.send(uuid, { method: 'message', error: 'EMPTY_MESSAGE' });
+			this.socket.send(uuid, { method: 'message', error: ErrorCode.EMPTY_MESSAGE });
 			return;
 		}
 		if (!this.rateLimit(uuid, 'message')) return;
@@ -183,7 +175,7 @@ export class API {
 	}
 
 	getUsers(uuid: string): void {
-		const users: { uuid: string; user: UserData }[] = [];
+		const users: UsersEntry[] = [];
 		for (const [id, user] of Object.entries(this.users)) users.push({ uuid: id, user });
 		this.socket.send(uuid, { method: 'users', error: '', data: users });
 	}
@@ -191,11 +183,11 @@ export class API {
 	getExpression(uuid: string, data: Record<string, unknown>): void {
 		const user = this.users[uuid];
 		if (!user) {
-			this.socket.send(uuid, { method: 'expression', error: 'NOT_IN_ROOM' });
+			this.socket.send(uuid, { method: 'expression', error: ErrorCode.NOT_IN_ROOM });
 			return;
 		}
 		if (!Number.isInteger(data['expression']) || (data['expression'] as number) < 1 || (data['expression'] as number) > 16) {
-			this.socket.send(uuid, { method: 'expression', error: 'WRONG_EXPRESSION' });
+			this.socket.send(uuid, { method: 'expression', error: ErrorCode.WRONG_EXPRESSION });
 			return;
 		}
 		user.expression = data['expression'] as number;

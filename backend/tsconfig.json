@@ -28,7 +28,6 @@
 		"verbatimModuleSyntax": true,
 		"isolatedDeclarations": true,
 		"paths": {
-			"@shared": ["../shared/src/index.ts"],
 			"@shared/*": ["../shared/src/*"]
 		}
 	},

@@ -3,6 +3,7 @@
 	import { Network } from '$lib/network';
 	import { World } from '$lib/world';
 	import { chatMessages, isLoggedIn } from '$lib/stores';
+	import type { EnterData, LeaveData, MoveData, MessageData, UsersEntry, ExpressionData } from '@shared/protocol.ts';
 	import LoginForm from '../components/LoginForm.svelte';
 	import ChatWindow from '../components/ChatWindow.svelte';
 	import MessageInput from '../components/MessageInput.svelte';
@@ -23,17 +24,17 @@
 		});
 
 		network = new Network(wsUrl, {
-			onEnter: (data: any) => {
+			onEnter: (data: EnterData) => {
 				network.myUuid = data.uuid;
 				isLoggedIn.set(true);
 				world.getUser(data.name, data.color, data.sex, data.x, data.y, data.angle);
 				world.createLabel(data.name);
 				network.sendUsers();
 			},
-			onUserEntered: (data: any) => {
+			onUserEntered: (data: EnterData) => {
 				world.addOtherPlayer(data.uuid, data.name, data.color, data.x, data.y, data.angle, data.expression);
 			},
-			onLeave: (data: any) => {
+			onLeave: (data: LeaveData) => {
 				if (data.uuid === network.myUuid) {
 					world.removeUser();
 					network.myUuid = undefined;
@@ -42,21 +43,21 @@
 					world.removeOtherPlayer(data.uuid);
 				}
 			},
-			onMove: (data: any) => {
+			onMove: (data: MoveData) => {
 				world.moveOtherPlayer(data.user, data.x, data.y, data.angle);
 			},
-			onMessage: (data: any) => {
+			onMessage: (data: MessageData) => {
 				chatMessages.update(msgs => [...msgs, { name: data.name, message: data.message }]);
 				world.createChatBubble(data.message);
 			},
-			onUsers: (data: any) => {
+			onUsers: (data: UsersEntry[]) => {
 				for (const entry of data) {
 					if (entry.uuid !== network.myUuid) {
 						world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.color, entry.user.x, entry.user.y, entry.user.angle, entry.user.expression);
 					}
 				}
 			},
-			onExpression: (data: any) => {
+			onExpression: (data: ExpressionData) => {
 				if (data.user === network.myUuid) world.setExpression(data.expression);
 				else world.setOtherPlayerExpression(data.user, data.expression);
 			},

@@ -1,6 +1,7 @@
+import { ErrorCode, type EnterData, type LeaveData, type MoveData, type MessageData, type UsersEntry, type ExpressionData } from '@shared/protocol.ts';
 import { connectionStatus, alerts, netLog } from './stores.ts';
 
-const errorMessages: Record<string, string> = {
+const errorMessages: Record<ErrorCode, string> = {
 	INVALID_JSON: 'Invalid data sent to server',
 	INVALID_COMMAND: 'Invalid command',
 	UNKNOWN_METHOD: 'Unknown command',
@@ -22,13 +23,13 @@ const errorMessages: Record<string, string> = {
 };
 
 interface NetworkCallbacks {
-	onEnter: (data: any) => void;
-	onUserEntered: (data: any) => void;
-	onLeave: (data: any) => void;
-	onMove: (data: any) => void;
-	onMessage: (data: any) => void;
-	onUsers: (data: any) => void;
-	onExpression: (data: any) => void;
+	onEnter: (data: EnterData) => void;
+	onUserEntered: (data: EnterData) => void;
+	onLeave: (data: LeaveData) => void;
+	onMove: (data: MoveData) => void;
+	onMessage: (data: MessageData) => void;
+	onUsers: (data: UsersEntry[]) => void;
+	onExpression: (data: ExpressionData) => void;
 }
 
 export class Network {
@@ -74,7 +75,7 @@ export class Network {
 						console.error('Unknown method from server:', res.method);
 				}
 			} else {
-				alerts.add(errorMessages[res.error] || `Unknown error: ${res.error}`);
+				alerts.add(errorMessages[res.error as ErrorCode] || `Unknown error: ${res.error}`);
 			}
 		};
 

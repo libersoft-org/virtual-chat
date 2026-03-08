@@ -39,8 +39,10 @@
 	{#each $chatMessages as msg}
 		{#if msg.system}
 			<div class="system"><span class="bold {msg.sex ? 'male' : 'female'}">{msg.name}</span> {msg.message}</div>
+		{:else if msg.private}
+			<div><span class="bold {msg.sex ? 'male' : 'female'}">{msg.name}</span> -> <span class="bold {msg.toSex ? 'male' : 'female'}">{msg.toName} (PM)</span>: {msg.message}</div>
 		{:else}
-			<div><span class="bold">{msg.name}</span>: {msg.message}</div>
+			<div><span class="bold {msg.sex ? 'male' : 'female'}">{msg.name}</span>: {msg.message}</div>
 		{/if}
 	{/each}
 </div>

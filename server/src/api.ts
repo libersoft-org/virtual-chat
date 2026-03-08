@@ -194,15 +194,26 @@ export class API {
 		}
 		if (!this.rateLimit(uuid, 'message')) return;
 		this.lastActivity[uuid] = Date.now();
+		const to = typeof data['to'] === 'string' ? data['to'] : undefined;
+		if (to && !this.users[to]) {
+			this.socket.send(uuid, { method: 'message', error: ErrorCode.NOT_IN_ROOM });
+			return;
+		}
 		const msgData: MessageData = {
 			user: uuid,
 			name: user.name,
 			message: data['message'].trim().substring(0, 250),
+			...(to ? { private: true, toName: this.users[to]!.name } : {}),
 		};
-		this.socket.broadcastToUsers({
-			method: 'message',
-			data: msgData,
-		});
+		if (to) {
+			this.socket.send(to, { method: 'message', data: msgData });
+			this.socket.send(uuid, { method: 'message', data: msgData });
+		} else {
+			this.socket.broadcastToUsers({
+				method: 'message',
+				data: msgData,
+			});
+		}
 	}
 
 	handleUsers(uuid: string): void {

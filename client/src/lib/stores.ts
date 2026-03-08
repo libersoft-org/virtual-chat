@@ -5,6 +5,9 @@ interface ChatMessage {
 	message: string;
 	system?: boolean;
 	sex?: boolean;
+	private?: boolean;
+	toName?: string;
+	toSex?: boolean;
 }
 
 export const connectionStatus = writable({
@@ -23,6 +26,7 @@ export interface UserListEntry {
 }
 
 export const userList = writable<UserListEntry[]>([]);
+export const selectedUser = writable<string | null>(null);
 export interface AlertItem {
 	id: number;
 	message: string;

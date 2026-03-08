@@ -1,13 +1,13 @@
 import { Network } from './network.ts';
 import { World } from './world.ts';
-import { chatMessages, isLoggedIn, userList } from './stores.ts';
+import { chatMessages, isLoggedIn, userList, selectedUser } from './stores.ts';
 import { get } from 'svelte/store';
 import type { EnterData, LeaveData, MoveData, MessageData, UsersEntry, ExpressionData } from '@shared/protocol.ts';
 
 export interface Session {
 	enter: (name: string, sex: boolean | null, color: number) => void;
 	leave: () => void;
-	sendMessage: (text: string) => void;
+	sendMessage: (text: string, to?: string) => void;
 	setExpression: (expression: number) => void;
 	destroy: () => void;
 }
@@ -33,10 +33,12 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 				network.myUuid = undefined;
 				isLoggedIn.set(false);
 				userList.set([]);
+				selectedUser.set(null);
 			} else {
 				const leaving = get(userList).find(u => u.uuid === data.uuid);
 				world.removeOtherPlayer(data.uuid);
 				userList.update(list => list.filter(u => u.uuid !== data.uuid));
+				if (get(selectedUser) === data.uuid) selectedUser.set(null);
 				if (leaving) chatMessages.update(msgs => [...msgs.slice(-199), { name: leaving.name, message: data.reason === 'idle' ? 'left due to inactivity' : 'left', system: true, sex: leaving.sex }]);
 			}
 		},
@@ -44,7 +46,17 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 			world.moveOtherPlayer(data.user, data.x, data.z, data.angle);
 		},
 		onMessage: (data: MessageData) => {
-			chatMessages.update(msgs => [...msgs.slice(-199), { name: data.name, message: data.message }]);
+			const sender = get(userList).find(u => u.uuid === data.user);
+			const toUser = data.toName ? get(userList).find(u => u.name === data.toName) : undefined;
+			chatMessages.update(msgs => [
+				...msgs.slice(-199),
+				{
+					name: data.name,
+					message: data.message,
+					...(sender ? { sex: sender.sex } : {}),
+					...(data.private ? { private: true, toName: data.toName, ...(toUser ? { toSex: toUser.sex } : {}) } : {}),
+				},
+			]);
 			if (data.user === network.myUuid) {
 				if (world.user) world.createChatBubble(data.message, world.user);
 			} else {
@@ -73,7 +85,7 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 	return {
 		enter: (name, sex, color) => network.sendEnter(name, sex, color),
 		leave: () => network.sendLeave(),
-		sendMessage: text => network.sendMessage(text),
+		sendMessage: (text, to) => network.sendMessage(text, to),
 		setExpression: expression => network.sendExpression(expression),
 		destroy: () => world.destroy(),
 	};

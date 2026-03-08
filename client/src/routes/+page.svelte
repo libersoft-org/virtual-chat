@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createSession, type Session } from '$lib/session';
-	import { isLoggedIn, debugMode } from '$lib/stores';
+	import { isLoggedIn, debugMode, selectedUser } from '$lib/stores';
 	import LoginForm from '../components/LoginForm.svelte';
 	import ChatWindow from '../components/ChatWindow.svelte';
 	import UserList from '../components/UserList.svelte';
@@ -51,7 +51,7 @@
 	<div class="chat">
 		<UserList />
 		<ChatWindow />
-		<MessageInput onsend={session.sendMessage} />
+		<MessageInput onsend={text => session.sendMessage(text, $selectedUser ?? undefined)} />
 	</div>
 	<div class="buttons">
 		<Button onclick={session.leave} text="Leave" />

@@ -102,10 +102,10 @@ export class Network {
 		this.send({ method: 'move', data: { x, z, angle } });
 	}
 
-	sendMessage(text: string) {
+	sendMessage(text: string, to?: string) {
 		this.send({
 			method: 'message',
-			data: { message: text },
+			data: { message: text, ...(to ? { to } : {}) },
 		});
 	}
 

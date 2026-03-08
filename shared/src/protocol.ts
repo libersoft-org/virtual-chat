@@ -55,6 +55,8 @@ export interface MessageData {
 	user: string;
 	name: string;
 	message: string;
+	private?: boolean;
+	toName?: string;
 }
 
 export interface UsersEntry {

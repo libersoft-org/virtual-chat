@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { userList } from '../lib/stores';
+	import { userList, selectedUser } from '../lib/stores';
 	import Listbox from './Listbox.svelte';
-
-	let selected = $state<string | null>(null);
 
 	let items = $derived(
 		$userList.map(u => ({
@@ -29,5 +27,5 @@
 </style>
 
 <div class="user-list">
-	<Listbox {items} {selected} onselect={id => (selected = id)} />
+	<Listbox {items} selected={$selectedUser} onselect={id => selectedUser.set(id)} />
 </div>

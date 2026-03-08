@@ -7,7 +7,6 @@
 ## Features
 
 - Optimize code in client
-- Private messages (user to user)
 - Send location to other users while moving every second - now it only has a final destination - not synchronized on network
 - Add rotation by buttons, not just mouse right click and drag
 - Process login, leave etc. errors (show errors in error bar)

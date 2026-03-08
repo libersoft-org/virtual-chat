@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { fpsValue } from './stores.ts';
-import { createRenderer, createCSS2DRenderer, createCamera, createLights, createFloor } from './scene.ts';
+import { createRenderer, createCSS2DRenderer, createCamera, createLights, createSky, createFloor } from './scene.ts';
 import { getThreeColor, createCharacter, createNameTag, updateFaceTexture, type FaceMaterial } from './character.ts';
 import { setupInput } from './input.ts';
 
@@ -43,6 +43,7 @@ export class World {
 		this.scene = new THREE.Scene();
 		this.renderer = createRenderer(container);
 		createLights(this.scene);
+		createSky(this.scene);
 		this.floor = createFloor(this.scene);
 		this.camera = createCamera();
 		this.cleanupInput = setupInput(this);

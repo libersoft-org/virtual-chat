@@ -47,6 +47,10 @@ export function createLights(scene: THREE.Scene): THREE.DirectionalLight {
 	return light;
 }
 
+export function createSky(scene: THREE.Scene): void {
+	scene.background = new THREE.Color(0x87ceeb);
+}
+
 export function createFloor(scene: THREE.Scene): THREE.Mesh {
 	const x = 20;
 	const y = 10;

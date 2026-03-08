@@ -1,4 +1,4 @@
-import { connectionStatus, alerts, netLog } from './stores';
+import { connectionStatus, alerts, netLog } from './stores.ts';
 
 const errorMessages: Record<string, string> = {
 	INVALID_JSON: 'Invalid data sent to server',

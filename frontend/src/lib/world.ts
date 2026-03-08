@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { fpsValue } from './stores';
+import { fpsValue } from './stores.ts';
+import { createRenderer, createCSS2DRenderer, createCamera, createLights, createFloor } from './scene.ts';
+import { colorMap, createCharacter, createNameTag, updateFaceTexture, type FaceMaterial } from './character.ts';
+import { setupInput } from './input.ts';
 
 export class World {
 	container: HTMLElement;
@@ -12,15 +14,13 @@ export class World {
 	lastTime = Date.now();
 	frameCount = 0;
 	renderer: THREE.WebGLRenderer;
-	camera!: THREE.PerspectiveCamera;
-	css2dRenderer!: CSS2DRenderer;
-	light!: THREE.DirectionalLight;
-	floor!: THREE.Mesh;
+	camera: THREE.PerspectiveCamera;
+	css2dRenderer: CSS2DRenderer;
+	floor: THREE.Mesh;
 	user: THREE.Group | undefined;
 	targetPosition: THREE.Vector3;
 	labelObject: CSS2DObject | undefined;
-	userFaceCtx: CanvasRenderingContext2D | undefined;
-	userFaceTexture: THREE.CanvasTexture | undefined;
+	userFace: FaceMaterial | undefined;
 	userColor: number = 0xff0000;
 	chatBubbles: { obj: CSS2DObject; user: THREE.Group }[] = [];
 	otherPlayers: Map<
@@ -30,8 +30,7 @@ export class World {
 			label: CSS2DObject;
 			target: THREE.Vector3;
 			targetAngle: number;
-			faceCtx: CanvasRenderingContext2D;
-			faceTexture: THREE.CanvasTexture;
+			face: FaceMaterial;
 			color: number;
 		}
 	> = new Map();
@@ -40,28 +39,13 @@ export class World {
 		this.container = container;
 		this.onMove = onMove;
 		this.scene = new THREE.Scene();
-		this.renderer = new THREE.WebGLRenderer({ antialias: true });
-		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-		this.renderer.setSize(window.innerWidth, window.innerHeight);
-		this.renderer.shadowMap.enabled = true;
-		this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-		this.renderer.shadowMap.needsUpdate = true;
-		container.appendChild(this.renderer.domElement);
-		this.getLight();
-		this.getFloor();
-		this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-		this.camera.position.set(0, 10, 10);
-		this.camera.lookAt(this.scene.position);
-		window.addEventListener('resize', this.onWindowResize.bind(this), false);
-		document.addEventListener('wheel', this.onDocumentWheel.bind(this), false);
-		document.addEventListener('click', this.onDocumentClick.bind(this), false);
+		this.renderer = createRenderer(container);
+		createLights(this.scene);
+		this.floor = createFloor(this.scene);
+		this.camera = createCamera();
+		setupInput(this);
 		this.targetPosition = new THREE.Vector3();
-		this.css2dRenderer = new CSS2DRenderer();
-		this.css2dRenderer.setSize(window.innerWidth, window.innerHeight);
-		this.css2dRenderer.domElement.style.position = 'absolute';
-		this.css2dRenderer.domElement.style.top = '0px';
-		this.css2dRenderer.domElement.style.pointerEvents = 'none';
-		container.appendChild(this.css2dRenderer.domElement);
+		this.css2dRenderer = createCSS2DRenderer(container);
 		this.update = this.update.bind(this);
 		this.update();
 	}
@@ -85,175 +69,22 @@ export class World {
 		this.lastTime = now;
 	}
 
-	getHelpers() {
-		const axesHelper = new THREE.AxesHelper(2);
-		this.scene.add(axesHelper);
-		const gridHelper = new THREE.GridHelper(100, 100);
-		this.scene.add(gridHelper);
-	}
-
-	getLight() {
-		const ambient = new THREE.AmbientLight(0xffffff, 0.5);
-		this.scene.add(ambient);
-		this.light = new THREE.DirectionalLight(0xffffff, 1.2);
-		this.light.position.set(10, 15, 5);
-		this.light.castShadow = true;
-		this.light.shadow.mapSize.width = 1024;
-		this.light.shadow.mapSize.height = 1024;
-		this.light.shadow.camera.near = 0.5;
-		this.light.shadow.camera.far = 50;
-		this.light.shadow.camera.left = -15;
-		this.light.shadow.camera.right = 15;
-		this.light.shadow.camera.top = 10;
-		this.light.shadow.camera.bottom = -10;
-		this.scene.add(this.light);
-	}
-
-	getFloor() {
-		const x = 20;
-		const y = 10;
-		const textureLoader = new THREE.TextureLoader();
-		const floorColorTexture = textureLoader.load('img/ground_0014_color_4k.jpg');
-		floorColorTexture.colorSpace = THREE.SRGBColorSpace;
-		const floorMaterial = new THREE.MeshStandardMaterial({
-			map: floorColorTexture,
-			metalness: 0,
-		});
-		const floorGeometry = new THREE.PlaneGeometry(x, y);
-		this.floor = new THREE.Mesh(floorGeometry, floorMaterial);
-		this.floor.rotation.x = -Math.PI / 2;
-		this.floor.receiveShadow = true;
-		this.scene.add(this.floor);
-	}
-
-	static colorMap: Record<number, number> = {
-		1: 0xff0000, // red
-		2: 0xff8800, // orange
-		3: 0xffff00, // yellow
-		4: 0x00cc00, // green
-		5: 0x0000ff, // blue
-		6: 0x9900ff, // violet
-		7: 0x888888, // gray
-		8: 0xffffff, // white
-	};
-
 	getUser(_name = 'User', _color = 1, _sex = true, _x = 0, _y = 0, _angle = 0) {
-		const baseColor = World.colorMap[_color] ?? 0xff0000;
-		this.userColor = baseColor;
-		const cubeGeometry = new RoundedBoxGeometry(1, 1, 1, 4, 0.1);
-		const baseMaterial = new THREE.MeshStandardMaterial({ color: baseColor });
-		const { material: faceMaterial, ctx, texture } = this.createFaceMaterial(baseColor, 1);
-		this.userFaceCtx = ctx;
-		this.userFaceTexture = texture;
-		// Three.js face order: +X, -X, +Y, -Y, +Z, -Z
-		const cubeMaterials = [baseMaterial, baseMaterial, baseMaterial, baseMaterial, faceMaterial, baseMaterial];
-		const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
-		cube.position.set(0, 0.5, 0);
-		cube.castShadow = true;
-		this.user = new THREE.Group();
-		this.user.add(cube);
+		this.userColor = colorMap[_color] ?? 0xff0000;
+		const { group, face } = createCharacter(_color, 1);
+		this.userFace = face;
+		this.user = group;
 		this.scene.add(this.user);
 		this.targetPosition.set(0, 0, 0);
 	}
 
-	createFaceMaterial(color: number, faceNum: number): { material: THREE.MeshStandardMaterial; ctx: CanvasRenderingContext2D; texture: THREE.CanvasTexture } {
-		const size = 256;
-		const canvas = document.createElement('canvas');
-		canvas.width = size;
-		canvas.height = size;
-		const ctx = canvas.getContext('2d')!;
-		const hex = '#' + color.toString(16).padStart(6, '0');
-		ctx.fillStyle = hex;
-		ctx.fillRect(0, 0, size, size);
-		const texture = new THREE.CanvasTexture(canvas);
-		texture.colorSpace = THREE.SRGBColorSpace;
-		const material = new THREE.MeshStandardMaterial({ map: texture });
-		const img = new Image();
-		img.src = `img/face${String(faceNum).padStart(2, '0')}.webp`;
-		img.onload = () => {
-			ctx.drawImage(img, 0, 0, size, size);
-			texture.needsUpdate = true;
-		};
-		return { material, ctx, texture };
-	}
-
-	updateFaceTexture(ctx: CanvasRenderingContext2D, texture: THREE.CanvasTexture, color: number, faceNum: number) {
-		const size = ctx.canvas.width;
-		const hex = '#' + color.toString(16).padStart(6, '0');
-		ctx.fillStyle = hex;
-		ctx.fillRect(0, 0, size, size);
-		const img = new Image();
-		img.src = `img/face${String(faceNum).padStart(2, '0')}.webp`;
-		img.onload = () => {
-			ctx.drawImage(img, 0, 0, size, size);
-			texture.needsUpdate = true;
-		};
-	}
-
 	setExpression(faceNum: number) {
-		if (this.userFaceCtx && this.userFaceTexture) this.updateFaceTexture(this.userFaceCtx, this.userFaceTexture, this.userColor, faceNum);
+		if (this.userFace) updateFaceTexture(this.userFace.ctx, this.userFace.texture, this.userColor, faceNum);
 	}
 
 	setOtherPlayerExpression(uuid: string, faceNum: number) {
 		const player = this.otherPlayers.get(uuid);
-		if (player) this.updateFaceTexture(player.faceCtx, player.faceTexture, player.color, faceNum);
-	}
-
-	onWindowResize() {
-		this.camera.aspect = window.innerWidth / window.innerHeight;
-		this.camera.updateProjectionMatrix();
-		this.renderer.setSize(window.innerWidth, window.innerHeight);
-		this.css2dRenderer.setSize(window.innerWidth, window.innerHeight);
-	}
-
-	onDocumentWheel(event: WheelEvent) {
-		if (event.target !== this.renderer.domElement) return;
-		event.preventDefault();
-		this.camera.zoom += event.deltaY * -0.001;
-		this.camera.zoom = Math.max(Math.min(this.camera.zoom, 3), 0.5);
-		this.camera.updateProjectionMatrix();
-	}
-
-	onDocumentClick(event: MouseEvent) {
-		if (this.user && event.target === this.renderer.domElement) {
-			event.preventDefault();
-			const raycaster = new THREE.Raycaster();
-			const mouse = new THREE.Vector2();
-			mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-			mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-			raycaster.setFromCamera(mouse, this.camera);
-			const intersects = raycaster.intersectObject(this.floor);
-			if (intersects.length > 0) {
-				const point = intersects[0]!.point;
-				this.setUserRotation(point.x, point.z);
-				const angleDeg = ((((this.user!.rotation.y * 180) / Math.PI) % 360) + 360) % 360;
-				this.onMove(point.x, point.z, angleDeg);
-				this.moveUserToPoint(point.x, point.z);
-			}
-		}
-	}
-
-	createDotAtPoint(x: number, y: number) {
-		const dot = new THREE.Mesh(new THREE.CircleGeometry(0.1, 10), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-		dot.position.set(x, 0, y);
-		dot.rotation.x = -Math.PI / 2;
-		this.scene.add(dot);
-		setTimeout(() => {
-			this.scene.remove(dot);
-		}, 2000);
-	}
-
-	setUserRotation(x: number, y: number) {
-		if (!this.user) return;
-		this.createDotAtPoint(this.user.position.x, this.user.position.z);
-		this.createDotAtPoint(x, y);
-		const direction = new THREE.Vector3(x - this.user.position.x, 0, y - this.user.position.z);
-		direction.normalize();
-		const distance = new THREE.Vector3(this.user.position.x, 0, this.user.position.z).distanceTo(new THREE.Vector3(x, 0, y));
-		const arrowHelper = new THREE.ArrowHelper(direction, this.user.position.clone(), distance, 0xff0000);
-		this.scene.add(arrowHelper);
-		setTimeout(() => this.scene.remove(arrowHelper), 2000);
-		this.user.rotation.y = Math.atan2(direction.x, direction.z);
+		if (player) updateFaceTexture(player.face.ctx, player.face.texture, player.color, faceNum);
 	}
 
 	moveUserToPoint(x: number, y: number) {
@@ -292,13 +123,10 @@ export class World {
 
 	createLabel(name: string) {
 		if (!this.user) return;
-		const nameTagSpan = document.createElement('span');
-		nameTagSpan.textContent = name;
-		nameTagSpan.classList.add('name-tag');
-		const nameTag2DObject = new CSS2DObject(nameTagSpan);
-		this.scene.add(nameTag2DObject);
-		nameTag2DObject.position.set(this.user.position.x, this.user.position.y - 1, this.user.position.z);
-		this.labelObject = nameTag2DObject;
+		const label = createNameTag(name);
+		this.scene.add(label);
+		label.position.set(this.user.position.x, this.user.position.y - 1, this.user.position.z);
+		this.labelObject = label;
 	}
 
 	removeUser() {
@@ -321,28 +149,17 @@ export class World {
 
 	addOtherPlayer(uuid: string, name: string, color: number, x: number, y: number, angle: number, expression = 1) {
 		if (this.otherPlayers.has(uuid)) return;
-		const baseColor = World.colorMap[color] ?? 0x888888;
-		const cubeGeometry = new RoundedBoxGeometry(1, 1, 1, 4, 0.1);
-		const baseMaterial = new THREE.MeshStandardMaterial({ color: baseColor });
-		const { material: faceMaterial, ctx: faceCtx, texture: faceTexture } = this.createFaceMaterial(baseColor, expression);
-		const cubeMaterials = [baseMaterial, baseMaterial, baseMaterial, baseMaterial, faceMaterial, baseMaterial];
-		const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
-		cube.position.set(0, 0.5, 0);
-		cube.castShadow = true;
-		const group = new THREE.Group();
-		group.add(cube);
+		const baseColor = colorMap[color] ?? 0x888888;
+		const { group, face } = createCharacter(color, expression);
 		const angleRad = (angle * Math.PI) / 180;
 		group.position.set(x, 0, y);
 		group.rotation.y = angleRad;
 		this.scene.add(group);
-		const nameTagSpan = document.createElement('span');
-		nameTagSpan.textContent = name;
-		nameTagSpan.classList.add('name-tag');
-		const label = new CSS2DObject(nameTagSpan);
+		const label = createNameTag(name);
 		label.position.set(x, -1, y);
 		this.scene.add(label);
 		const target = new THREE.Vector3(x, 0, y);
-		this.otherPlayers.set(uuid, { group, label, target, targetAngle: angleRad, faceCtx, faceTexture, color: baseColor });
+		this.otherPlayers.set(uuid, { group, label, target, targetAngle: angleRad, face, color: baseColor });
 	}
 
 	removeOtherPlayer(uuid: string) {
@@ -362,7 +179,6 @@ export class World {
 
 	createChatBubble(message: string) {
 		if (!this.user) return;
-		// Remove existing bubble for this user
 		const existing = this.chatBubbles.find(b => b.user === this.user);
 		if (existing) {
 			this.scene.remove(existing.obj);

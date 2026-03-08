@@ -7,7 +7,9 @@
 ## Features
 
 - Optimize code in frontend
+- Disconnect idle users from server automatically
 - Rename frontend to client and backend to server
+- Add skybox
 - Client - optimize for mobiles
 - Add log levels - add in settings from which level we want to log - for example - only WARN and ERR, no INFO / DEBUG
 - Add server address in initial form (saved in local storage)
@@ -19,7 +21,6 @@
 - Get all players locations every 3 seconds (when connected) - maybe not necessary
 - Reconnect when disconnected (after 5 secs)
 - Change floor texture to seamless grass
-- Add skybox
 - Add screenshot for README.md
 
 ## Future versions
@@ -28,4 +29,4 @@
 - Add reactions (flying hearts and emojis above cube - like bubbles)
 - More rooms
 - Private rooms
-- Push-to-talk voice
+- Push-to-talk voice chat

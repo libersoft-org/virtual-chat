@@ -7,12 +7,12 @@
 ## Features
 
 - Optimize code in client
+- Disconnect idle users from server automatically
+- Private messages (user to user)
+- Send location to other users while moving every second - now it only has a final destination - not synchronized on network
 - Add rotation by buttons, not just mouse right click and drag
 - Process login, leave etc. errors (show errors in error bar)
 - Chat bubble in UI window - through network (not directly from user)
-- Get all users locations every 3 seconds (when connected) - maybe not necessary
-- Disconnect idle users from server automatically
-- Private messages (user to user)
 - Client - optimize for mobiles (responsivity, control etc.)
 - Add log levels - add in settings from which level we want to log - for example - only WARN and ERR, no INFO / DEBUG
 - Add server address in initial form (saved in local storage)

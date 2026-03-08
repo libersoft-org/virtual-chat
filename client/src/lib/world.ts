@@ -125,11 +125,7 @@ export class World {
 
 	updateCamera() {
 		const target = this.user ? this.user.position : new THREE.Vector3(0, 0, 0);
-		this.camera.position.set(
-			target.x + Math.sin(this.cameraAngle) * this.cameraRadius,
-			target.y + this.cameraHeight,
-			target.z + Math.cos(this.cameraAngle) * this.cameraRadius
-		);
+		this.camera.position.set(target.x + Math.sin(this.cameraAngle) * this.cameraRadius, target.y + this.cameraHeight, target.z + Math.cos(this.cameraAngle) * this.cameraRadius);
 		this.camera.lookAt(target);
 	}
 

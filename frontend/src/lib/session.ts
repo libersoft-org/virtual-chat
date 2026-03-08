@@ -36,7 +36,7 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 			world.moveOtherPlayer(data.user, data.x, data.y, data.angle);
 		},
 		onMessage: (data: MessageData) => {
-			chatMessages.update(msgs => [...msgs, { name: data.name, message: data.message }]);
+			chatMessages.update(msgs => [...msgs.slice(-199), { name: data.name, message: data.message }]);
 			if (data.user === network.myUuid) {
 				if (world.user) world.createChatBubble(data.message, world.user);
 			} else {

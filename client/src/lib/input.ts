@@ -8,14 +8,47 @@ export function setupInput(world: World): () => void {
 	const onWheel = (e: WheelEvent) => onDocumentWheel(e, world);
 	const onClick = (e: MouseEvent) => onDocumentClick(e, world);
 
+	let isRightDragging = false;
+	let lastMouseX = 0;
+
+	const onMouseDown = (e: MouseEvent) => {
+		if (e.button === 2 && e.target === world.renderer.domElement) {
+			isRightDragging = true;
+			lastMouseX = e.clientX;
+		}
+	};
+
+	const onMouseMove = (e: MouseEvent) => {
+		if (!isRightDragging) return;
+		const dx = e.clientX - lastMouseX;
+		world.cameraAngle += dx * 0.005;
+		lastMouseX = e.clientX;
+	};
+
+	const onMouseUp = (e: MouseEvent) => {
+		if (e.button === 2) isRightDragging = false;
+	};
+
+	const onContextMenu = (e: MouseEvent) => {
+		if (e.target === world.renderer.domElement) e.preventDefault();
+	};
+
 	window.addEventListener('resize', onResize);
 	document.addEventListener('wheel', onWheel);
 	document.addEventListener('click', onClick);
+	document.addEventListener('mousedown', onMouseDown);
+	document.addEventListener('mousemove', onMouseMove);
+	document.addEventListener('mouseup', onMouseUp);
+	document.addEventListener('contextmenu', onContextMenu);
 
 	return () => {
 		window.removeEventListener('resize', onResize);
 		document.removeEventListener('wheel', onWheel);
 		document.removeEventListener('click', onClick);
+		document.removeEventListener('mousedown', onMouseDown);
+		document.removeEventListener('mousemove', onMouseMove);
+		document.removeEventListener('mouseup', onMouseUp);
+		document.removeEventListener('contextmenu', onContextMenu);
 	};
 }
 

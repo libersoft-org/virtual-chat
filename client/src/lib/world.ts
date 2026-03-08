@@ -23,6 +23,9 @@ export class World {
 	userFace: FaceMaterial | undefined;
 	userColor: number = 0xff0000;
 	animationFrameId = 0;
+	cameraAngle = 0;
+	cameraRadius = 10;
+	cameraHeight = 10;
 	cleanupInput: () => void;
 	chatBubbles: { obj: CSS2DObject; user: THREE.Group }[] = [];
 	otherPlayers: Map<
@@ -57,6 +60,7 @@ export class World {
 		this.animationFrameId = requestAnimationFrame(this.update);
 		this.moveUser();
 		this.updateOverlays();
+		this.updateCamera();
 		this.renderer.render(this.scene, this.camera);
 		this.css2dRenderer.render(this.scene, this.camera);
 		const now = Date.now();
@@ -117,6 +121,16 @@ export class World {
 			player.group.rotation.y = player.targetAngle;
 			player.label.position.set(player.group.position.x, player.group.position.y - 1, player.group.position.z);
 		}
+	}
+
+	updateCamera() {
+		const target = this.user ? this.user.position : new THREE.Vector3(0, 0, 0);
+		this.camera.position.set(
+			target.x + Math.sin(this.cameraAngle) * this.cameraRadius,
+			target.y + this.cameraHeight,
+			target.z + Math.cos(this.cameraAngle) * this.cameraRadius
+		);
+		this.camera.lookAt(target);
 	}
 
 	updateOverlays() {

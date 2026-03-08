@@ -7,7 +7,6 @@
 ## Features
 
 - Optimize code in client
-- List of online users
 - Add rotation by buttons, not just mouse right click and drag
 - Process login, leave etc. errors (show errors in error bar)
 - Chat bubble in UI window - through network (not directly from user)

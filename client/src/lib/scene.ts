@@ -30,9 +30,9 @@ export function createCamera(): THREE.PerspectiveCamera {
 }
 
 export function createLights(scene: THREE.Scene): THREE.DirectionalLight {
-	const ambient = new THREE.AmbientLight(0xffffff, 1.0);
+	const ambient = new THREE.AmbientLight(0xffffff, 0.5);
 	scene.add(ambient);
-	const light = new THREE.DirectionalLight(0xffffff, 3.0);
+	const light = new THREE.DirectionalLight(0xffffff, 2.0);
 	light.position.set(10, 15, 5);
 	light.castShadow = true;
 	light.shadow.mapSize.width = 1024;

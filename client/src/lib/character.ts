@@ -74,6 +74,6 @@ export function createNameTag(name: string, sex: boolean): CSS2DObject {
 	const span = document.createElement('span');
 	span.textContent = name;
 	span.classList.add('name-tag');
-	span.style.color = sex ? '#22f' : '#a22';
+	span.style.color = sex ? 'var(--male-color)' : 'var(--female-color)';
 	return new CSS2DObject(span);
 }

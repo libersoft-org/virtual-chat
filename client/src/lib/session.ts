@@ -1,6 +1,6 @@
 import { Network } from './network.ts';
 import { World } from './world.ts';
-import { chatMessages, isLoggedIn } from './stores.ts';
+import { chatMessages, isLoggedIn, userList } from './stores.ts';
 import type { EnterData, LeaveData, MoveData, MessageData, UsersEntry, ExpressionData } from '@shared/protocol.ts';
 
 export interface Session {
@@ -18,18 +18,22 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 			isLoggedIn.set(true);
 			world.spawnUser(data.name, data.color, data.sex, data.x, data.z, data.angle);
 			world.createLabel(data.name, data.sex);
+			userList.update(list => [...list, { uuid: data.uuid, name: data.name, sex: data.sex }]);
 			network.sendUsers();
 		},
 		onUserEntered: (data: EnterData) => {
 			world.addOtherPlayer(data.uuid, data.name, data.color, data.sex, data.x, data.z, data.angle, data.expression);
+			userList.update(list => [...list, { uuid: data.uuid, name: data.name, sex: data.sex }]);
 		},
 		onLeave: (data: LeaveData) => {
 			if (data.uuid === network.myUuid) {
 				world.removeUser();
 				network.myUuid = undefined;
 				isLoggedIn.set(false);
+				userList.set([]);
 			} else {
 				world.removeOtherPlayer(data.uuid);
+				userList.update(list => list.filter(u => u.uuid !== data.uuid));
 			}
 		},
 		onMove: (data: MoveData) => {
@@ -48,6 +52,7 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 			for (const entry of data) {
 				if (entry.uuid !== network.myUuid) {
 					world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.color, entry.user.sex, entry.user.x, entry.user.z, entry.user.angle, entry.user.expression);
+					userList.update(list => (list.some(u => u.uuid === entry.uuid) ? list : [...list, { uuid: entry.uuid, name: entry.user.name, sex: entry.user.sex }]));
 				}
 			}
 		},

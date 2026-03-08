@@ -13,6 +13,14 @@ export const chatMessages = writable<ChatMessage[]>([]);
 export const isLoggedIn = writable(false);
 export const debugMode = writable(false);
 export const fpsValue = writable('-');
+
+export interface UserListEntry {
+	uuid: string;
+	name: string;
+	sex: boolean;
+}
+
+export const userList = writable<UserListEntry[]>([]);
 export interface AlertItem {
 	id: number;
 	message: string;

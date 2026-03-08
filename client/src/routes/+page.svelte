@@ -3,6 +3,7 @@
 	import { isLoggedIn, debugMode } from '$lib/stores';
 	import LoginForm from '../components/LoginForm.svelte';
 	import ChatWindow from '../components/ChatWindow.svelte';
+	import UserList from '../components/UserList.svelte';
 	import MessageInput from '../components/MessageInput.svelte';
 	import StatusBar from '../components/StatusBar.svelte';
 	import FpsCounter from '../components/FpsCounter.svelte';
@@ -48,6 +49,7 @@
 	<LoginForm onenter={session.enter} />
 {:else}
 	<div class="chat">
+		<UserList />
 		<ChatWindow />
 		<MessageInput onsend={session.sendMessage} />
 	</div>

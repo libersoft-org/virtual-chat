@@ -18,18 +18,18 @@ canvas {
 }
 
 .chat-bubble {
-	font-size: 18px;
-	line-height: 24px;
+	font-size: 2vh;
+	line-height: 2.6vh;
 	width: max-content;
-	max-width: 250px;
+	max-width: 27vh;
 	overflow-wrap: break-word;
-	padding: 5px 10px;
-	border-radius: 16px;
+	padding: 0.5vh 1vh;
+	border-radius: 1.8vh;
 	background-color: rgba(255, 255, 255, 0.5);
 	box-shadow:
-		0 2px 8px rgba(0, 0, 0, 0.3),
-		0 1px 2px rgba(0, 0, 0, 0.2);
-	margin-bottom: 20px;
+		0 0.2vh 0.9vh rgba(0, 0, 0, 0.3),
+		0 0.1vh 0.2vh rgba(0, 0, 0, 0.2);
+	margin-bottom: 2.2vh;
 }
 
 .chat-bubble:before {
@@ -39,18 +39,18 @@ canvas {
 	top: 100%;
 	left: 50%;
 	transform: translateX(-50%);
-	border: 10px solid transparent;
+	border: 1.1vh solid transparent;
 	border-bottom: none;
 	border-top-color: rgba(255, 255, 255, 0.5);
-	filter: drop-shadow(0 -1px 1px rgba(0, 0, 0, 0.1));
+	filter: drop-shadow(0 -0.1vh 0.1vh rgba(0, 0, 0, 0.1));
 	content: '';
 }
 
 .name-tag {
-	font-size: 22px;
+	font-size: 2.4vh;
 	font-weight: bold;
-	padding: 5px 10px;
-	border: 1px solid #000;
-	border-radius: 10px;
+	padding: 0.5vh 1vh;
+	border: 0.2vh solid #000;
+	border-radius: 1vh;
 	background-color: rgba(255, 255, 255, 0.5);
 }

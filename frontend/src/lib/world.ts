@@ -22,6 +22,8 @@ export class World {
 	labelObject: CSS2DObject | undefined;
 	userFace: FaceMaterial | undefined;
 	userColor: number = 0xff0000;
+	animationFrameId = 0;
+	cleanupInput: () => void;
 	chatBubbles: { obj: CSS2DObject; user: THREE.Group }[] = [];
 	otherPlayers: Map<
 		string,
@@ -43,7 +45,7 @@ export class World {
 		createLights(this.scene);
 		this.floor = createFloor(this.scene);
 		this.camera = createCamera();
-		setupInput(this);
+		this.cleanupInput = setupInput(this);
 		this.targetPosition = new THREE.Vector3();
 		this.css2dRenderer = createCSS2DRenderer(container);
 		this.update = this.update.bind(this);
@@ -51,7 +53,7 @@ export class World {
 	}
 
 	update() {
-		requestAnimationFrame(this.update);
+		this.animationFrameId = requestAnimationFrame(this.update);
 		this.moveUser();
 		this.updateOverlays();
 		this.renderer.render(this.scene, this.camera);
@@ -195,5 +197,12 @@ export class World {
 			this.scene.remove(chatBubble2DObject);
 			this.chatBubbles = this.chatBubbles.filter(b => b !== entry);
 		}, 7000);
+	}
+
+	destroy() {
+		cancelAnimationFrame(this.animationFrameId);
+		this.cleanupInput();
+		this.renderer.dispose();
+		this.removeUser();
 	}
 }

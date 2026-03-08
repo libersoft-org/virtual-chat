@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	let { onready }: { onready: (container: HTMLDivElement) => void } = $props();
+	let { onready }: { onready: (container: HTMLDivElement) => (() => void) | void } = $props();
 	let container: HTMLDivElement;
 
-	onMount(() => onready(container));
+	onMount(() => {
+		const cleanup = onready(container);
+		return cleanup;
+	});
 </script>
 
 <style>

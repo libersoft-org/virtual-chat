@@ -16,6 +16,7 @@
 
 	function initSession(container: HTMLDivElement) {
 		session = createSession(container, wsUrl);
+		return () => session.destroy();
 	}
 </script>
 

@@ -1,10 +1,20 @@
 import * as THREE from 'three';
 import type { World } from './world.ts';
 
-export function setupInput(world: World) {
-	window.addEventListener('resize', () => onWindowResize(world), false);
-	document.addEventListener('wheel', e => onDocumentWheel(e, world), false);
-	document.addEventListener('click', e => onDocumentClick(e, world), false);
+export function setupInput(world: World): () => void {
+	const onResize = () => onWindowResize(world);
+	const onWheel = (e: WheelEvent) => onDocumentWheel(e, world);
+	const onClick = (e: MouseEvent) => onDocumentClick(e, world);
+
+	window.addEventListener('resize', onResize);
+	document.addEventListener('wheel', onWheel);
+	document.addEventListener('click', onClick);
+
+	return () => {
+		window.removeEventListener('resize', onResize);
+		document.removeEventListener('wheel', onWheel);
+		document.removeEventListener('click', onClick);
+	};
 }
 
 function onWindowResize(world: World) {

@@ -20,8 +20,9 @@
 		border-radius: 10px;
 		display: flex;
 		flex-direction: column;
-		height: 300px;
-		width: 450px;
+		height: 30vh;
+		width: 50vw;
+		box-sizing: border-box;
 	}
 
 	.header {
@@ -32,7 +33,7 @@
 	.log {
 		overflow-y: auto;
 		flex: 1;
-		font-size: 11px;
+		font-size: 14px;
 		padding: 8px;
 		border-top: 1px solid #000;
 	}
@@ -45,13 +46,13 @@
 	}
 
 	.out {
-		color: #0055cc;
+		color: #00a;
 	}
 	.in {
-		color: #008800;
+		color: #a00;
 	}
 	.time {
-		color: #666;
+		color: #080;
 	}
 
 	.toolbar {
@@ -61,7 +62,7 @@
 	}
 
 	.toolbar button {
-		font-size: 11px;
+		font-size: 14px;
 		padding: 4px 12px;
 		cursor: pointer;
 		background-color: var(--form-bg);

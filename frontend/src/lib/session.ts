@@ -16,12 +16,12 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 		onEnter: (data: EnterData) => {
 			network.myUuid = data.uuid;
 			isLoggedIn.set(true);
-			world.getUser(data.name, data.color, data.sex, data.x, data.y, data.angle);
+			world.spawnUser(data.name, data.color, data.sex, data.x, data.z, data.angle);
 			world.createLabel(data.name);
 			network.sendUsers();
 		},
 		onUserEntered: (data: EnterData) => {
-			world.addOtherPlayer(data.uuid, data.name, data.color, data.x, data.y, data.angle, data.expression);
+			world.addOtherPlayer(data.uuid, data.name, data.color, data.x, data.z, data.angle, data.expression);
 		},
 		onLeave: (data: LeaveData) => {
 			if (data.uuid === network.myUuid) {
@@ -33,7 +33,7 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 			}
 		},
 		onMove: (data: MoveData) => {
-			world.moveOtherPlayer(data.user, data.x, data.y, data.angle);
+			world.moveOtherPlayer(data.user, data.x, data.z, data.angle);
 		},
 		onMessage: (data: MessageData) => {
 			chatMessages.update(msgs => [...msgs.slice(-199), { name: data.name, message: data.message }]);
@@ -47,7 +47,7 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 		onUsers: (data: UsersEntry[]) => {
 			for (const entry of data) {
 				if (entry.uuid !== network.myUuid) {
-					world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.color, entry.user.x, entry.user.y, entry.user.angle, entry.user.expression);
+					world.addOtherPlayer(entry.uuid, entry.user.name, entry.user.color, entry.user.x, entry.user.z, entry.user.angle, entry.user.expression);
 				}
 			}
 		},
@@ -57,8 +57,8 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 		},
 	});
 
-	const world = new World(container, (x: number, y: number, angle: number) => {
-		network.sendMove(x, y, angle);
+	const world = new World(container, (x: number, z: number, angle: number) => {
+		network.sendMove(x, z, angle);
 	});
 
 	return {

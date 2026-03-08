@@ -12,12 +12,12 @@ export class API {
 	}
 
 	methods: Record<string, (uuid: string, data: Record<string, unknown>) => void> = {
-		enter: (uuid, data) => this.getEnter(uuid, data),
-		leave: uuid => this.getLeave(uuid),
-		move: (uuid, data) => this.getMove(uuid, data),
-		message: (uuid, data) => this.getMessage(uuid, data),
-		users: uuid => this.getUsers(uuid),
-		expression: (uuid, data) => this.getExpression(uuid, data),
+		enter: (uuid, data) => this.enter(uuid, data),
+		leave: uuid => this.leave(uuid),
+		move: (uuid, data) => this.move(uuid, data),
+		message: (uuid, data) => this.message(uuid, data),
+		users: uuid => this.handleUsers(uuid),
+		expression: (uuid, data) => this.expression(uuid, data),
 	};
 
 	handle(uuid: string, json: string): void {
@@ -45,7 +45,7 @@ export class API {
 	}
 
 	onDisconnect(uuid: string): void {
-		if (this.users[uuid]) this.leave(uuid);
+		if (this.users[uuid]) this.doLeave(uuid);
 		delete this.rateLimits[uuid];
 		this.count();
 	}
@@ -55,7 +55,7 @@ export class API {
 		Common.addLog('WS users: ' + Object.keys(this.users).length);
 	}
 
-	leave(uuid: string): void {
+	doLeave(uuid: string): void {
 		const data: LeaveData = { uuid };
 		this.socket.broadcastToUsers({ method: 'leave', data });
 		delete this.users[uuid];
@@ -86,7 +86,7 @@ export class API {
 		return null;
 	}
 
-	getEnter(uuid: string, data: Record<string, unknown>): void {
+	enter(uuid: string, data: Record<string, unknown>): void {
 		if (!this.socket.connections[uuid]) return;
 		if (this.users[uuid]) {
 			this.socket.send(uuid, { method: 'enter', error: ErrorCode.ALREADY_IN_ROOM });
@@ -102,7 +102,7 @@ export class API {
 			color: data['color'] as number,
 			sex: data['sex'] as boolean,
 			x: 0,
-			y: 0,
+			z: 0,
 			angle: 0,
 			expression: 1,
 		};
@@ -115,22 +115,22 @@ export class API {
 		});
 	}
 
-	getLeave(uuid: string): void {
+	leave(uuid: string): void {
 		if (!this.users[uuid]) this.socket.send(uuid, { method: 'leave', error: ErrorCode.NOT_IN_ROOM });
-		else this.leave(uuid);
+		else this.doLeave(uuid);
 	}
 
-	getMove(uuid: string, data: Record<string, unknown>): void {
+	move(uuid: string, data: Record<string, unknown>): void {
 		const user = this.users[uuid];
 		if (!user) {
 			this.socket.send(uuid, { method: 'move', error: ErrorCode.NOT_IN_ROOM });
 			return;
 		}
-		if (typeof data['x'] !== 'number' || typeof data['y'] !== 'number' || typeof data['angle'] !== 'number' || !Number.isFinite(data['x']) || !Number.isFinite(data['y']) || !Number.isFinite(data['angle'])) {
+		if (typeof data['x'] !== 'number' || typeof data['z'] !== 'number' || typeof data['angle'] !== 'number' || !Number.isFinite(data['x']) || !Number.isFinite(data['z']) || !Number.isFinite(data['angle'])) {
 			this.socket.send(uuid, { method: 'move', error: ErrorCode.INVALID_COORDS });
 			return;
 		}
-		if (data['x'] < -10 || data['x'] > 10 || data['y'] < -5 || data['y'] > 5) {
+		if (data['x'] < -10 || data['x'] > 10 || data['z'] < -5 || data['z'] > 5) {
 			this.socket.send(uuid, { method: 'move', error: ErrorCode.WRONG_COORDS });
 			return;
 		}
@@ -140,16 +140,16 @@ export class API {
 		}
 		if (!this.rateLimit(uuid, 'move')) return;
 		user.x = data['x'];
-		user.y = data['y'];
+		user.z = data['z'];
 		user.angle = data['angle'];
-		const moveData: MoveData = { user: uuid, x: data['x'], y: data['y'], angle: data['angle'] };
+		const moveData: MoveData = { user: uuid, x: data['x'], z: data['z'], angle: data['angle'] };
 		this.socket.broadcastToUsers({
 			method: 'move',
 			data: moveData,
 		});
 	}
 
-	getMessage(uuid: string, data: Record<string, unknown>): void {
+	message(uuid: string, data: Record<string, unknown>): void {
 		const user = this.users[uuid];
 		if (!user) {
 			this.socket.send(uuid, { method: 'message', error: ErrorCode.NOT_IN_ROOM });
@@ -175,13 +175,13 @@ export class API {
 		});
 	}
 
-	getUsers(uuid: string): void {
+	handleUsers(uuid: string): void {
 		const users: UsersEntry[] = [];
 		for (const [id, user] of Object.entries(this.users)) users.push({ uuid: id, user });
 		this.socket.send(uuid, { method: 'users', data: users });
 	}
 
-	getExpression(uuid: string, data: Record<string, unknown>): void {
+	expression(uuid: string, data: Record<string, unknown>): void {
 		const user = this.users[uuid];
 		if (!user) {
 			this.socket.send(uuid, { method: 'expression', error: ErrorCode.NOT_IN_ROOM });

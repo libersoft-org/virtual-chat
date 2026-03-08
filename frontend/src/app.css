@@ -91,6 +91,7 @@ select {
 
 .name-tag {
 	font-size: 22px;
+	font-weight: bold;
 	padding: 5px 10px;
 	border: 1px solid #000;
 	border-radius: 10px;

@@ -30,7 +30,7 @@ export interface UserData {
 	color: number;
 	sex: boolean;
 	x: number;
-	y: number;
+	z: number;
 	angle: number;
 	expression: number;
 }
@@ -46,7 +46,7 @@ export interface LeaveData {
 export interface MoveData {
 	user: string;
 	x: number;
-	y: number;
+	z: number;
 	angle: number;
 }
 

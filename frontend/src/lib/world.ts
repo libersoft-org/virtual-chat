@@ -7,7 +7,7 @@ import { setupInput } from './input.ts';
 
 export class World {
 	container: HTMLElement;
-	onMove: (x: number, y: number, angle: number) => void;
+	onMove: (x: number, z: number, angle: number) => void;
 	scene: THREE.Scene;
 	deltaTime = 0;
 	currentTime = 0;
@@ -71,7 +71,7 @@ export class World {
 		this.lastTime = now;
 	}
 
-	getUser(_name = 'User', _color = 1, _sex = true, _x = 0, _y = 0, _angle = 0) {
+	spawnUser(_name = 'User', _color = 1, _sex = true, _x = 0, _z = 0, _angle = 0) {
 		this.userColor = getThreeColor(_color);
 		const { group, face } = createCharacter(_color, 1);
 		this.userFace = face;
@@ -89,9 +89,9 @@ export class World {
 		if (player) updateFaceTexture(player.face.ctx, player.face.texture, player.color, faceNum);
 	}
 
-	moveUserToPoint(x: number, y: number) {
+	moveUserToPoint(x: number, z: number) {
 		this.targetPosition.x = x;
-		this.targetPosition.z = y;
+		this.targetPosition.z = z;
 	}
 
 	moveUser() {
@@ -149,18 +149,18 @@ export class World {
 		this.otherPlayers.clear();
 	}
 
-	addOtherPlayer(uuid: string, name: string, color: number, x: number, y: number, angle: number, expression = 1) {
+	addOtherPlayer(uuid: string, name: string, color: number, x: number, z: number, angle: number, expression = 1) {
 		if (this.otherPlayers.has(uuid)) return;
 		const baseColor = getThreeColor(color);
 		const { group, face } = createCharacter(color, expression);
 		const angleRad = (angle * Math.PI) / 180;
-		group.position.set(x, 0, y);
+		group.position.set(x, 0, z);
 		group.rotation.y = angleRad;
 		this.scene.add(group);
 		const label = createNameTag(name);
-		label.position.set(x, -1, y);
+		label.position.set(x, -1, z);
 		this.scene.add(label);
-		const target = new THREE.Vector3(x, 0, y);
+		const target = new THREE.Vector3(x, 0, z);
 		this.otherPlayers.set(uuid, { group, label, target, targetAngle: angleRad, face, color: baseColor });
 	}
 
@@ -172,10 +172,10 @@ export class World {
 		this.otherPlayers.delete(uuid);
 	}
 
-	moveOtherPlayer(uuid: string, x: number, y: number, angle: number) {
+	moveOtherPlayer(uuid: string, x: number, z: number, angle: number) {
 		const player = this.otherPlayers.get(uuid);
 		if (!player) return;
-		player.target.set(x, 0, y);
+		player.target.set(x, 0, z);
 		player.targetAngle = (angle * Math.PI) / 180;
 	}
 

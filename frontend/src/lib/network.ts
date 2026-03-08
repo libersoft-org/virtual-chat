@@ -98,8 +98,8 @@ export class Network {
 		this.send({ method: 'users', data: {} });
 	}
 
-	sendMove(x: number, y: number, angle: number) {
-		this.send({ method: 'move', data: { x, y, angle } });
+	sendMove(x: number, z: number, angle: number) {
+		this.send({ method: 'move', data: { x, z, angle } });
 	}
 
 	sendMessage(text: string) {

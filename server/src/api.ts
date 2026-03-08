@@ -54,7 +54,8 @@ export class API {
 		}
 		const method = msg['method'] as string;
 		const data = msg['data'] as Record<string, unknown>;
-		Common.addLog(`API ${method} from ${uuid}`);
+		const userName = this.users[uuid]?.name;
+		if (method !== 'enter' && method !== 'leave') Common.addLog(`[API] ${method} from ${userName ?? ''} (${uuid})`);
 		const handler = this.methods[method];
 		if (handler) handler(uuid, data);
 		else this.socket.send(uuid, { method, error: ErrorCode.UNKNOWN_METHOD });
@@ -78,8 +79,8 @@ export class API {
 
 	doLeave(uuid: string, reason?: string): void {
 		const name = this.users[uuid]?.name;
-		if (reason === 'idle') Common.addLog(`${name} (${uuid}) was kicked due to inactivity`);
-		else Common.addLog(`${name} (${uuid}) left`);
+		if (reason === 'idle') Common.addLog(`[API] leave from ${name} (${uuid}) - kicked due to inactivity`);
+		else Common.addLog(`[API] leave from ${name} (${uuid})`);
 		const data: LeaveData = { uuid, ...(reason ? { reason } : {}) };
 		this.socket.broadcastToUsers({ method: 'leave', data });
 		delete this.users[uuid];
@@ -133,7 +134,7 @@ export class API {
 		};
 		this.lastActivity[uuid] = Date.now();
 		this.count();
-		Common.addLog(`Connection ${uuid} entered as ${this.users[uuid].name}`);
+		Common.addLog(`[API] enter from ${this.users[uuid].name} (${uuid})`);
 		const enterData: EnterData = { uuid, ...this.users[uuid] };
 		this.socket.send(uuid, { method: 'enter', data: enterData });
 		this.socket.broadcastToUsersExcept(uuid, {

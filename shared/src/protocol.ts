@@ -64,3 +64,9 @@ export interface ExpressionData {
 	user: string;
 	expression: number;
 }
+
+export interface ServerMessage<T = unknown> {
+	method?: string;
+	error?: ErrorCode;
+	data?: T;
+}

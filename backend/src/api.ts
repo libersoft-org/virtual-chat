@@ -1,5 +1,5 @@
 import { Common } from './common';
-import { ErrorCode, type UserData, type UsersEntry } from '@shared/protocol.ts';
+import { ErrorCode, type UserData, type UsersEntry, type EnterData, type LeaveData, type MoveData, type MessageData, type ExpressionData } from '@shared/protocol.ts';
 import type { Socket } from './socket';
 
 export class API {
@@ -56,7 +56,8 @@ export class API {
 	}
 
 	leave(uuid: string): void {
-		this.socket.broadcastToUsers({ method: 'leave', error: '', data: { uuid } });
+		const data: LeaveData = { uuid };
+		this.socket.broadcastToUsers({ method: 'leave', data });
 		delete this.users[uuid];
 		this.count();
 	}
@@ -106,11 +107,10 @@ export class API {
 			expression: 1,
 		};
 		this.count();
-		const enterData = { uuid, ...this.users[uuid] };
-		this.socket.send(uuid, { method: 'enter', error: '', data: enterData });
+		const enterData: EnterData = { uuid, ...this.users[uuid] };
+		this.socket.send(uuid, { method: 'enter', data: enterData });
 		this.socket.broadcastToUsersExcept(uuid, {
 			method: 'user_entered',
-			error: '',
 			data: enterData,
 		});
 	}
@@ -142,10 +142,10 @@ export class API {
 		user.x = data['x'];
 		user.y = data['y'];
 		user.angle = data['angle'];
+		const moveData: MoveData = { user: uuid, x: data['x'], y: data['y'], angle: data['angle'] };
 		this.socket.broadcastToUsers({
 			method: 'move',
-			error: '',
-			data: { user: uuid, x: data['x'], y: data['y'], angle: data['angle'] },
+			data: moveData,
 		});
 	}
 
@@ -164,20 +164,20 @@ export class API {
 			return;
 		}
 		if (!this.rateLimit(uuid, 'message')) return;
+		const msgData: MessageData = {
+			name: user.name,
+			message: data['message'].trim().substring(0, 250),
+		};
 		this.socket.broadcastToUsers({
 			method: 'message',
-			error: '',
-			data: {
-				name: user.name,
-				message: data['message'].trim().substring(0, 250),
-			},
+			data: msgData,
 		});
 	}
 
 	getUsers(uuid: string): void {
 		const users: UsersEntry[] = [];
 		for (const [id, user] of Object.entries(this.users)) users.push({ uuid: id, user });
-		this.socket.send(uuid, { method: 'users', error: '', data: users });
+		this.socket.send(uuid, { method: 'users', data: users });
 	}
 
 	getExpression(uuid: string, data: Record<string, unknown>): void {
@@ -191,10 +191,10 @@ export class API {
 			return;
 		}
 		user.expression = data['expression'] as number;
+		const exprData: ExpressionData = { user: uuid, expression: user.expression };
 		this.socket.broadcastToUsers({
 			method: 'expression',
-			error: '',
-			data: { user: uuid, expression: user.expression },
+			data: exprData,
 		});
 	}
 }

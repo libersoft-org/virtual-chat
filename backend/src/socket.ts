@@ -1,5 +1,6 @@
 import { Common } from './common';
 import { API } from './api';
+import type { ServerMessage } from '@shared/protocol.ts';
 import type { ServerWebSocket } from 'bun';
 
 export class Socket {
@@ -24,31 +25,31 @@ export class Socket {
 		this.api.handle(ws.data.uuid, String(json));
 	}
 
-	send(uuid: string, obj: object): void {
-		this.connections[uuid]?.send(JSON.stringify(obj));
+	send(uuid: string, msg: ServerMessage): void {
+		this.connections[uuid]?.send(JSON.stringify(msg));
 	}
 
-	broadcast(obj: object): void {
-		const data = JSON.stringify(obj);
+	broadcast(msg: ServerMessage): void {
+		const data = JSON.stringify(msg);
 		for (const ws of Object.values(this.connections)) ws.send(data);
 	}
 
-	broadcastExcept(excludeUuid: string, obj: object): void {
-		const data = JSON.stringify(obj);
+	broadcastExcept(excludeUuid: string, msg: ServerMessage): void {
+		const data = JSON.stringify(msg);
 		for (const [id, ws] of Object.entries(this.connections)) {
 			if (id !== excludeUuid) ws.send(data);
 		}
 	}
 
-	broadcastToUsers(obj: object): void {
-		const data = JSON.stringify(obj);
+	broadcastToUsers(msg: ServerMessage): void {
+		const data = JSON.stringify(msg);
 		for (const [id, ws] of Object.entries(this.connections)) {
 			if (this.api.users[id]) ws.send(data);
 		}
 	}
 
-	broadcastToUsersExcept(excludeUuid: string, obj: object): void {
-		const data = JSON.stringify(obj);
+	broadcastToUsersExcept(excludeUuid: string, msg: ServerMessage): void {
+		const data = JSON.stringify(msg);
 		for (const [id, ws] of Object.entries(this.connections)) {
 			if (id !== excludeUuid && this.api.users[id]) ws.send(data);
 		}

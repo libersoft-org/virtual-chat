@@ -12,7 +12,7 @@
 	import ExpressionPicker from '../components/ExpressionPicker.svelte';
 	import World from '../components/World.svelte';
 	let session: Session;
-	const wsUrl = import.meta.env['VITE_BACKEND_URL'] || (import.meta.env.DEV ? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:7010` : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
+	const wsUrl = import.meta.env['VITE_SERVER_URL'] || (import.meta.env.DEV ? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:7010` : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
 
 	function initSession(container: HTMLDivElement) {
 		session = createSession(container, wsUrl);

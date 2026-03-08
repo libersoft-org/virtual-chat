@@ -1,5 +1,5 @@
 #!/bin/sh
 
-cd backend
+cd server
 bun run typecheck
 cd ..

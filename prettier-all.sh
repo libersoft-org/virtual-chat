@@ -1,4 +1,4 @@
 #!/bin/sh
 
-./prettier-be.sh
-./prettier-fe.sh
+./prettier-server.sh
+./prettier-client.sh

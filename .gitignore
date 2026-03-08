@@ -4,7 +4,7 @@
 **/package-lock.json
 bun.lockb
 bun.lockb.txt
-frontend/.svelte-kit/
+client/.svelte-kit/
 **/settings.json
 **/*.log
 **/*.crt

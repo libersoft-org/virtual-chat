@@ -1,5 +1,5 @@
 {
-	"name": "virtual-chat-frontend",
+	"name": "virtual-chat-client",
 	"private": true,
 	"type": "module",
 	"scripts": {

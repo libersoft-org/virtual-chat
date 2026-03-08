@@ -6,9 +6,8 @@
 
 ## Features
 
-- Optimize code in frontend
+- Optimize code in client
 - Disconnect idle users from server automatically
-- Rename frontend to client and backend to server
 - Add skybox
 - Client - optimize for mobiles
 - Add log levels - add in settings from which level we want to log - for example - only WARN and ERR, no INFO / DEBUG

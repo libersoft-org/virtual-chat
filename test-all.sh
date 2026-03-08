@@ -1,5 +1,5 @@
 #!/bin/sh
 
-./test-be.sh
-./test-fe.sh
+./test-server.sh
+./test-client.sh
 ./test-shared.sh

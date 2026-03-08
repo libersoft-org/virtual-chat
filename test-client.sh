@@ -1,5 +1,5 @@
 #!/bin/sh
 
-cd frontend
+cd client
 svelte-check
 cd ..

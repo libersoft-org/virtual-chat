@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { createSession, type Session } from '$lib/session';
 	import { isLoggedIn } from '$lib/stores';
 	import LoginForm from '../components/LoginForm.svelte';
@@ -11,26 +10,16 @@
 	import Alert from '../components/Alert.svelte';
 	import DebugPanel from '../components/DebugPanel.svelte';
 	import ExpressionPicker from '../components/ExpressionPicker.svelte';
-	let container: HTMLDivElement;
+	import World from '../components/World.svelte';
 	let session: Session;
 	const wsUrl = import.meta.env['VITE_BACKEND_URL'] || (import.meta.env.DEV ? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:7010` : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
 
-	onMount(() => {
+	function initSession(container: HTMLDivElement) {
 		session = createSession(container, wsUrl);
-	});
+	}
 </script>
 
-<style>
-	#world-container {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
-
-<div id="world-container" bind:this={container}></div>
+<World onready={initSession} />
 
 {#if !$isLoggedIn}
 	<LoginForm onenter={session.enter} />

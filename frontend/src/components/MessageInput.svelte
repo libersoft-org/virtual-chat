@@ -17,5 +17,18 @@
 	}
 </script>
 
+<style>
+	#message {
+		position: absolute;
+		top: calc(20vh + 20px);
+		left: 10px;
+		width: 25vw;
+		background-color: var(--form-bg);
+		color: var(--form-text);
+		z-index: 10;
+		box-sizing: border-box;
+	}
+</style>
+
 <svelte:document onkeydown={onKeyDown} />
 <input id="message" type="text" placeholder="Enter your message" maxlength="250" bind:value={message} bind:this={inputEl} />

@@ -28,6 +28,47 @@
 	}
 </script>
 
+<style>
+	#login {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		position: absolute;
+		top: calc(50% - (110px + 10px));
+		left: calc(50% - (150px + 10px));
+		width: 300px;
+		height: 220px;
+		padding: 10px;
+		background-color: var(--form-bg);
+		color: var(--form-text);
+		z-index: 10;
+	}
+
+	.logo {
+		font-size: 25px;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	.color-picker {
+		display: flex;
+		justify-content: center;
+		gap: 5px;
+	}
+
+	.color {
+		cursor: pointer;
+		width: 30px;
+		height: 30px;
+		border: 1px solid #000;
+		border-radius: 5px;
+	}
+
+	.color.active {
+		border: 3px solid #000;
+	}
+</style>
+
 <div id="login" class="form">
 	<div class="logo">Virtual chat</div>
 	<input type="text" placeholder="Nickname" bind:value={name} />

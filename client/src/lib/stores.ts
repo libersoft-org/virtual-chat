@@ -3,6 +3,8 @@ import { writable } from 'svelte/store';
 interface ChatMessage {
 	name: string;
 	message: string;
+	system?: boolean;
+	sex?: boolean;
 }
 
 export const connectionStatus = writable({

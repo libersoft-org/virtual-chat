@@ -29,5 +29,5 @@
 </style>
 
 <div class="user-list">
-	<Listbox {items} {selected} onselect={(id) => selected = id} />
+	<Listbox {items} {selected} onselect={id => (selected = id)} />
 </div>

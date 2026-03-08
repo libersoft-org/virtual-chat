@@ -108,6 +108,7 @@ class App {
 			limits: {
 				moves_per_second: 10,
 				messages_per_second: 3,
+				idle_timeout: 900,
 			},
 			other: {
 				log_to_file: true,

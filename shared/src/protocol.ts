@@ -41,6 +41,7 @@ export interface EnterData extends UserData {
 
 export interface LeaveData {
 	uuid: string;
+	reason?: string;
 }
 
 export interface MoveData {

@@ -7,7 +7,6 @@
 ## Features
 
 - Optimize code in client
-- Disconnect idle users from server automatically
 - Private messages (user to user)
 - Send location to other users while moving every second - now it only has a final destination - not synchronized on network
 - Add rotation by buttons, not just mouse right click and drag

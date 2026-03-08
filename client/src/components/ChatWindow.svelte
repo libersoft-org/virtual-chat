@@ -23,10 +23,24 @@
 		border: 0.2vh solid #000;
 		border-radius: 1vh;
 	}
+	.system {
+		color: #999;
+		font-style: italic;
+	}
+	.male {
+		color: var(--male-color);
+	}
+	.female {
+		color: var(--female-color);
+	}
 </style>
 
 <div id="chat" bind:this={chatEl}>
 	{#each $chatMessages as msg}
-		<div><span class="bold">{msg.name}</span>: {msg.message}</div>
+		{#if msg.system}
+			<div class="system"><span class="bold {msg.sex ? 'male' : 'female'}">{msg.name}</span> {msg.message}</div>
+		{:else}
+			<div><span class="bold">{msg.name}</span>: {msg.message}</div>
+		{/if}
 	{/each}
 </div>

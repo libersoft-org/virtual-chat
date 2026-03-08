@@ -19,6 +19,7 @@ interface Settings {
 	limits?: {
 		moves_per_second?: number;
 		messages_per_second?: number;
+		idle_timeout?: number;
 	};
 	other: {
 		log_to_file: boolean;

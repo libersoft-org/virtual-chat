@@ -6,9 +6,30 @@ export class API {
 	socket: Socket;
 	users: Record<string, UserData> = {};
 	rateLimits: Record<string, { moveTimestamps: number[]; messageTimestamps: number[] }> = {};
+	lastActivity: Record<string, number> = {};
+	idleTimer: ReturnType<typeof setInterval>;
 
 	constructor(socket: Socket) {
 		this.socket = socket;
+		this.idleTimer = setInterval(() => this.checkIdle(), 1000);
+	}
+
+	get idleTimeout(): number {
+		return (Common.settings.limits?.idle_timeout ?? 900) * 1000;
+	}
+
+	checkIdle(): void {
+		const now = Date.now();
+		for (const uuid of Object.keys(this.users)) {
+			if (now - (this.lastActivity[uuid] ?? 0) > this.idleTimeout) {
+				Common.addLog(`Kicking idle user: ${uuid}`);
+				this.doLeave(uuid, 'idle');
+			}
+		}
+	}
+
+	shutdown(): void {
+		clearInterval(this.idleTimer);
 	}
 
 	methods: Record<string, (uuid: string, data: Record<string, unknown>) => void> = {
@@ -47,6 +68,7 @@ export class API {
 	onDisconnect(uuid: string): void {
 		if (this.users[uuid]) this.doLeave(uuid);
 		delete this.rateLimits[uuid];
+		delete this.lastActivity[uuid];
 		this.count();
 	}
 
@@ -55,10 +77,11 @@ export class API {
 		Common.addLog('WS users: ' + Object.keys(this.users).length);
 	}
 
-	doLeave(uuid: string): void {
-		const data: LeaveData = { uuid };
+	doLeave(uuid: string, reason?: string): void {
+		const data: LeaveData = { uuid, ...(reason ? { reason } : {}) };
 		this.socket.broadcastToUsers({ method: 'leave', data });
 		delete this.users[uuid];
+		delete this.lastActivity[uuid];
 		this.count();
 	}
 
@@ -106,6 +129,7 @@ export class API {
 			angle: 0,
 			expression: 1,
 		};
+		this.lastActivity[uuid] = Date.now();
 		this.count();
 		const enterData: EnterData = { uuid, ...this.users[uuid] };
 		this.socket.send(uuid, { method: 'enter', data: enterData });
@@ -139,6 +163,7 @@ export class API {
 			return;
 		}
 		if (!this.rateLimit(uuid, 'move')) return;
+		this.lastActivity[uuid] = Date.now();
 		user.x = data['x'];
 		user.z = data['z'];
 		user.angle = data['angle'];
@@ -164,6 +189,7 @@ export class API {
 			return;
 		}
 		if (!this.rateLimit(uuid, 'message')) return;
+		this.lastActivity[uuid] = Date.now();
 		const msgData: MessageData = {
 			user: uuid,
 			name: user.name,
@@ -192,6 +218,7 @@ export class API {
 			return;
 		}
 		user.expression = data['expression'] as number;
+		this.lastActivity[uuid] = Date.now();
 		const exprData: ExpressionData = { user: uuid, expression: user.expression };
 		this.socket.broadcastToUsers({
 			method: 'expression',

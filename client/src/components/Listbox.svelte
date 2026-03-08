@@ -20,6 +20,7 @@
 
 <style>
 	.listbox {
+		height: 100%;
 		overflow-y: auto;
 		padding: 1vh;
 		background-color: var(--form-bg);

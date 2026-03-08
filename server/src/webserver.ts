@@ -46,6 +46,7 @@ export class WebServer {
 
 	shutdown(): void {
 		Common.addLog('Shutting down...');
+		this.socket.api.shutdown();
 		for (const ws of Object.values(this.socket.connections)) ws.close(1001, 'Server shutting down');
 		this.server?.stop();
 		Common.addLog('Server stopped.');

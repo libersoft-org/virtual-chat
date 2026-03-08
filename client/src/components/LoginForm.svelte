@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { playerColors } from '$lib/character';
 	import { alerts } from '$lib/stores';
+	import Button from './Button.svelte';
+	import Input from './Input.svelte';
+	import Select from './Select.svelte';
 
 	let { onenter }: { onenter: (name: string, sex: boolean | null, color: number) => void } = $props();
 
@@ -19,7 +22,6 @@
 	}
 
 	function enter() {
-		if (loading) return;
 		loading = true;
 		localStorage.setItem('vc_login', JSON.stringify({ name, sex, color }));
 		let sexValue: boolean | null = sex === '1' ? true : sex === '0' ? false : null;
@@ -33,14 +35,15 @@
 		flex-direction: column;
 		gap: 10px;
 		position: absolute;
-		top: calc(50% - (110px + 10px));
-		left: calc(50% - (150px + 10px));
-		width: 300px;
-		height: 220px;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
 		padding: 10px;
 		background-color: var(--form-bg);
 		color: var(--form-text);
 		z-index: 10;
+		border: 0.2vh solid #000;
+		border-radius: 1vh;
 	}
 
 	.logo {
@@ -52,40 +55,34 @@
 	.color-picker {
 		display: flex;
 		justify-content: center;
-		gap: 5px;
+		gap: 0.5vh;
 	}
 
 	.color {
 		cursor: pointer;
-		width: 30px;
-		height: 30px;
-		border: 1px solid #000;
-		border-radius: 5px;
+		width: 3vh;
+		height: 3vh;
+		border: 0.2vh solid #000;
+		border-radius: 0.5vh;
 	}
 
 	.color.active {
-		border: 3px solid #000;
+		border: 0.4vh solid #000;
 	}
 </style>
 
-<div id="login" class="form">
+<div id="login">
 	<div class="logo">Virtual chat</div>
-	<input type="text" placeholder="Nickname" bind:value={name} />
-	<select bind:value={sex}>
+	<Input placeholder="Nickname" bind:value={name} />
+	<Select bind:value={sex}>
 		<option value="" selected>-- Gender --</option>
 		<option value="1">Male</option>
 		<option value="0">Female</option>
-	</select>
+	</Select>
 	<div class="color-picker">
 		{#each playerColors as c, i}
 			<button type="button" class="color" class:active={color === i + 1} style="background-color: {c}" onclick={() => setColor(i + 1)} aria-label="Color {i + 1}"></button>
 		{/each}
 	</div>
-	<button id="enter" class="button" style="background-color: {loading ? '#888' : '#f80'}" onclick={enter}>
-		{#if loading}
-			<div class="loader"></div>
-		{:else}
-			Enter
-		{/if}
-	</button>
+	<Button onclick={enter} text="Enter" color="#f80" {loading} />
 </div>

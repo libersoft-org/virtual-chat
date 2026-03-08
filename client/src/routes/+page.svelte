@@ -6,10 +6,10 @@
 	import MessageInput from '../components/MessageInput.svelte';
 	import StatusBar from '../components/StatusBar.svelte';
 	import FpsCounter from '../components/FpsCounter.svelte';
-	import LeaveButton from '../components/LeaveButton.svelte';
 	import Alert from '../components/Alert.svelte';
 	import DebugPanel from '../components/DebugPanel.svelte';
 	import ExpressionPicker from '../components/ExpressionPicker.svelte';
+	import Button from '../components/Button.svelte';
 	import World from '../components/World.svelte';
 	let session: Session;
 	const wsUrl = import.meta.env['VITE_SERVER_URL'] || (import.meta.env.DEV ? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:7010` : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
@@ -21,11 +21,24 @@
 </script>
 
 <style>
-	#debug {
-		position: absolute;
-		top: 50px;
-		right: 10px;
+	.buttons {
 		z-index: 10;
+		position: absolute;
+		top: 1vh;
+		right: 1vh;
+		display: flex;
+		flex-direction: column;
+		gap: 1vh;
+	}
+
+	.chat {
+		z-index: 10;
+		position: absolute;
+		top: 1vh;
+		left: 1vh;
+		display: flex;
+		flex-direction: column;
+		gap: 1vh;
 	}
 </style>
 
@@ -34,11 +47,15 @@
 {#if !$isLoggedIn}
 	<LoginForm onenter={session.enter} />
 {:else}
-	<ChatWindow />
+	<div class="chat">
+		<ChatWindow />
+		<MessageInput onsend={session.sendMessage} />
+	</div>
 	<FpsCounter />
-	<MessageInput onsend={session.sendMessage} />
-	<LeaveButton onleave={session.leave} />
-	<button class="button" id="debug" onclick={() => debugMode.update(v => !v)}>Debug</button>
+	<div class="buttons">
+		<Button onclick={session.leave} text="Leave" />
+		<Button onclick={() => debugMode.update(v => !v)} text="Debug" />
+	</div>
 	<ExpressionPicker onpick={session.setExpression} />
 {/if}
 

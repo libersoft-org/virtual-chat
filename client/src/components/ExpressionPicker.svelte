@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from './Button.svelte';
 	let { onpick }: { onpick: (expression: number) => void } = $props();
 	let open = $state(false);
 	const expressions = Array.from({ length: 16 }, (_, i) => i + 1);
@@ -12,31 +13,31 @@
 <style>
 	.picker {
 		position: absolute;
-		bottom: 50px;
-		left: 10px;
+		bottom: 4vh;
+		left: 1vw;
 		z-index: 10;
 	}
 
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
-		gap: 6px;
-		padding: 8px;
+		gap: 0.4vh;
+		padding: 0.5vh;
 		background-color: var(--form-bg);
 		color: var(--form-text);
-		border: 1px solid #000;
-		border-radius: 10px;
-		margin-bottom: 6px;
+		border: 0.1vh solid #000;
+		border-radius: 0.7vh;
+		margin-bottom: 0.4vh;
 	}
 
 	.face {
-		width: 48px;
-		height: 48px;
+		width: 5vh;
+		height: 5vh;
 		cursor: pointer;
-		border: 1px solid #000;
-		border-radius: 8px;
+		border: 0.12vh solid #000;
+		border-radius: 0.5vh;
 		background-color: var(--form-bg);
-		padding: 4px;
+		padding: 0.25vh;
 	}
 
 	.face img {
@@ -46,18 +47,11 @@
 	}
 
 	.face:hover {
-		outline: 2px solid #000;
+		outline: 0.15vw solid #000;
 	}
 
 	.toggle {
-		padding: 10px;
-		border-radius: 10px;
-		text-align: center;
-		font-weight: bold;
-		border: 1px solid #000;
-		background-color: var(--form-bg);
-		color: var(--form-text);
-		cursor: pointer;
+		display: inline-block;
 	}
 </style>
 
@@ -71,7 +65,7 @@
 			{/each}
 		</div>
 	{/if}
-	<button class="toggle" onclick={() => (open = !open)}>
-		{open ? '▼' : '▶'} Expression
-	</button>
+	<div class="toggle">
+		<Button onclick={() => (open = !open)} text="{open ? '▼' : '▶'} Expression" />
+	</div>
 </div>

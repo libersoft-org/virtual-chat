@@ -12,21 +12,20 @@
 
 <style>
 	#chat {
-		position: absolute;
-		top: 10px;
-		left: 10px;
-		width: 25vw;
+		width: 30vh;
 		height: 20vh;
 		overflow: auto;
-		padding: 10px;
+		padding: 1vh;
 		background-color: var(--form-bg);
 		color: var(--form-text);
-		z-index: 10;
 		box-sizing: border-box;
+		font-size: 1.6vh;
+		border: 0.2vh solid #000;
+		border-radius: 1vh;
 	}
 </style>
 
-<div id="chat" class="form" bind:this={chatEl}>
+<div id="chat" bind:this={chatEl}>
 	{#each $chatMessages as msg}
 		<div><span class="bold">{msg.name}</span>: {msg.message}</div>
 	{/each}

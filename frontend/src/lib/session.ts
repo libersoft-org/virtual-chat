@@ -64,8 +64,8 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 	return {
 		enter: (name, sex, color) => network.sendEnter(name, sex, color),
 		leave: () => network.sendLeave(),
-		sendMessage: (text) => network.sendMessage(text),
-		setExpression: (expression) => network.sendExpression(expression),
+		sendMessage: text => network.sendMessage(text),
+		setExpression: expression => network.sendExpression(expression),
 		destroy: () => world.destroy(),
 	};
 }

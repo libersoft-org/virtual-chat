@@ -51,6 +51,7 @@ export interface MoveData {
 }
 
 export interface MessageData {
+	user: string;
 	name: string;
 	message: string;
 }

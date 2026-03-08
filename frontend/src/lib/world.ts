@@ -177,9 +177,8 @@ export class World {
 		player.targetAngle = (angle * Math.PI) / 180;
 	}
 
-	createChatBubble(message: string) {
-		if (!this.user) return;
-		const existing = this.chatBubbles.find(b => b.user === this.user);
+	createChatBubble(message: string, playerGroup: THREE.Group) {
+		const existing = this.chatBubbles.find(b => b.user === playerGroup);
 		if (existing) {
 			this.scene.remove(existing.obj);
 			this.chatBubbles = this.chatBubbles.filter(b => b !== existing);
@@ -190,7 +189,7 @@ export class World {
 		const chatBubble2DObject = new CSS2DObject(chatBubbleP);
 		chatBubble2DObject.center.set(0.5, 1);
 		this.scene.add(chatBubble2DObject);
-		const entry = { obj: chatBubble2DObject, user: this.user };
+		const entry = { obj: chatBubble2DObject, user: playerGroup };
 		this.chatBubbles.push(entry);
 		setTimeout(() => {
 			this.scene.remove(chatBubble2DObject);

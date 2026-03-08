@@ -165,6 +165,7 @@ export class API {
 		}
 		if (!this.rateLimit(uuid, 'message')) return;
 		const msgData: MessageData = {
+			user: uuid,
 			name: user.name,
 			message: data['message'].trim().substring(0, 250),
 		};

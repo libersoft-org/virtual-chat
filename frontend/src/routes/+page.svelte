@@ -48,7 +48,12 @@
 			},
 			onMessage: (data: MessageData) => {
 				chatMessages.update(msgs => [...msgs, { name: data.name, message: data.message }]);
-				world.createChatBubble(data.message);
+				if (data.user === network.myUuid) {
+					if (world.user) world.createChatBubble(data.message, world.user);
+				} else {
+					const player = world.otherPlayers.get(data.user);
+					if (player) world.createChatBubble(data.message, player.group);
+				}
 			},
 			onUsers: (data: UsersEntry[]) => {
 				for (const entry of data) {

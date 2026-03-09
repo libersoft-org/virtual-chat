@@ -1,19 +1,19 @@
 # TODO
 
-## Bugs
+## Bugs / changes / cleanup
 
--
+- Send location to other users while moving every second - now it only has a final destination - not synchronized on network
+- Optimize code in client
 
 ## Features
 
 - If server disconnects, move user to initial page or auto reconnect and spawn on specified spot
-- Optimize code in client
-- Send location to other users while moving every second - now it only has a final destination - not synchronized on network
 - Add rotation by buttons, not just mouse right click and drag
 - Process login, leave etc. errors (show errors in error bar)
-- Chat bubble in UI window - through network (not directly from user)
+- Add timestamp in messages
 - Add log levels - add in settings from which level we want to log - for example - only WARN and ERR, no INFO / DEBUG
 - Add server address in initial form (saved in local storage)
+- Add public server list
 - Add network users on client - make "Enter" in login form working
 - Add screenshot for README.md
 - Moderators - kicking, banning etc.

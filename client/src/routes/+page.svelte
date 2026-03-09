@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createSession, type Session } from '$lib/session';
-	import { isLoggedIn, selectedUser } from '$lib/stores';
+	import { isLoggedIn, selectedUser, debugMode } from '$lib/stores';
 	import LoginForm from '../components/LoginForm.svelte';
 	import Chat from '../components/Chat.svelte';
 	import UserList from '../components/UserList.svelte';
@@ -13,11 +13,10 @@
 	import Accordion from '../components/Accordion.svelte';
 	import Button from '../components/Button.svelte';
 	import World from '../components/World.svelte';
-	let session: Session;
+	let session = $state<Session>() as Session;
 	const wsUrl = import.meta.env['VITE_SERVER_URL'] || (import.meta.env.DEV ? `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}:7010` : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
 	let chatOpen = $state(window.innerWidth > 768);
 	let exprOpen = $state(false);
-	let debugOpen = $state(false);
 
 	function initSession(container: HTMLDivElement) {
 		session = createSession(container, wsUrl);
@@ -79,7 +78,7 @@
 		<Button onclick={session.leave} text="Leave" />
 	</div>
 	<div class="debug-pos">
-		<Accordion title="Debug" bind:open={debugOpen} headerBottom alignRight>
+		<Accordion title="Debug" bind:open={$debugMode} headerBottom alignRight>
 			<FPSCounter />
 			<NetworkLog />
 		</Accordion>

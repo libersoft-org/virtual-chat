@@ -43,7 +43,8 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 			}
 		},
 		onMove: (data: MoveData) => {
-			world.moveOtherPlayer(data.user, data.x, data.z, data.angle);
+			if (data.user === network.myUuid) world.moveUserFromServer(data.x, data.z, data.angle);
+			else world.moveOtherPlayer(data.user, data.x, data.z, data.angle);
 		},
 		onMessage: (data: MessageData) => {
 			const sender = get(userList).find(u => u.uuid === data.user);

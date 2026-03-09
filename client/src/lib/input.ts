@@ -1,12 +1,10 @@
 import * as THREE from 'three';
-import { get } from 'svelte/store';
-import { debugMode } from './stores.ts';
 import type { World } from './world.ts';
 
 export function setupInput(world: World): () => void {
 	const onResize = () => onWindowResize(world);
 	const onWheel = (e: WheelEvent) => onDocumentWheel(e, world);
-	const onClick = (e: MouseEvent) => onDocumentClick(e, world);
+	const onClick = (e: MouseEvent) => onDocumentClick(e, world, () => Date.now() - lastTouchEnd < 500);
 	let isRightDragging = false;
 	let lastMouseX = 0;
 	let lastPinchDist = 0;
@@ -33,6 +31,8 @@ export function setupInput(world: World): () => void {
 	const onContextMenu = (e: MouseEvent) => {
 		if (e.target === world.renderer.domElement) e.preventDefault();
 	};
+	let lastTouchEnd = 0;
+
 	const onTouchStart = (e: TouchEvent) => {
 		if (e.target !== world.renderer.domElement) return;
 		if (e.touches.length === 2) {
@@ -74,6 +74,7 @@ export function setupInput(world: World): () => void {
 	};
 	const onTouchEnd = (e: TouchEvent) => {
 		if (e.target !== world.renderer.domElement) return;
+		lastTouchEnd = Date.now();
 		if (!isTouchDragging && e.changedTouches.length === 1 && e.touches.length === 0) {
 			const touch = e.changedTouches[0]!;
 			const dx = touch.clientX - touchStartX;
@@ -121,7 +122,8 @@ function onDocumentWheel(event: WheelEvent, world: World) {
 	world.camera.updateProjectionMatrix();
 }
 
-function onDocumentClick(event: MouseEvent, world: World) {
+function onDocumentClick(event: MouseEvent, world: World, isRecentTouch: () => boolean) {
+	if (isRecentTouch()) return;
 	if (world.user && event.target === world.renderer.domElement) {
 		event.preventDefault();
 		moveUserToTouch(event.clientX, event.clientY, world);
@@ -141,33 +143,9 @@ function moveUserToTouch(clientX: number, clientY: number, world: World) {
 	const intersects = raycaster.intersectObject(world.floor);
 	if (intersects.length > 0) {
 		const point = intersects[0]!.point;
-		setUserRotation(point.x, point.z, world);
-		const angleDeg = ((((world.user!.rotation.y * 180) / Math.PI) % 360) + 360) % 360;
+		const direction = new THREE.Vector3(point.x - world.user!.position.x, 0, point.z - world.user!.position.z);
+		const angleRad = Math.atan2(direction.x, direction.z);
+		const angleDeg = ((((angleRad * 180) / Math.PI) % 360) + 360) % 360;
 		world.onMove(point.x, point.z, angleDeg);
-		world.moveUserToPoint(point.x, point.z);
 	}
-}
-
-function createDotAtPoint(x: number, z: number, world: World) {
-	const dot = new THREE.Mesh(new THREE.CircleGeometry(0.1, 10), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-	dot.position.set(x, 0, z);
-	dot.rotation.x = -Math.PI / 2;
-	world.scene.add(dot);
-	setTimeout(() => world.scene.remove(dot), 2000);
-}
-
-function setUserRotation(x: number, z: number, world: World) {
-	if (!world.user) return;
-	if (get(debugMode)) {
-		createDotAtPoint(world.user.position.x, world.user.position.z, world);
-		createDotAtPoint(x, z, world);
-		const direction = new THREE.Vector3(x - world.user.position.x, 0, z - world.user.position.z);
-		direction.normalize();
-		const distance = new THREE.Vector3(world.user.position.x, 0, world.user.position.z).distanceTo(new THREE.Vector3(x, 0, z));
-		const arrowHelper = new THREE.ArrowHelper(direction, world.user.position.clone(), distance, 0xff0000);
-		world.scene.add(arrowHelper);
-		setTimeout(() => world.scene.remove(arrowHelper), 2000);
-	}
-	const direction = new THREE.Vector3(x - world.user.position.x, 0, z - world.user.position.z);
-	world.user.rotation.y = Math.atan2(direction.x, direction.z);
 }

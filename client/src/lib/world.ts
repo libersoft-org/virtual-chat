@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-import { fpsValue } from './stores.ts';
+import { fpsValue, debugMode } from './stores.ts';
+import { get } from 'svelte/store';
 import { createRenderer, createCSS2DRenderer, createCamera, createLights, createSky, createFloor } from './scene.ts';
 import { getThreeColor, createCharacter, createNameTag, updateFaceTexture, type FaceMaterial } from './character.ts';
 import { setupInput } from './input.ts';
@@ -97,6 +98,33 @@ export class World {
 	moveUserToPoint(x: number, z: number) {
 		this.targetPosition.x = x;
 		this.targetPosition.z = z;
+	}
+
+	moveUserFromServer(x: number, z: number, angle: number) {
+		if (!this.user) return;
+		if (get(debugMode)) {
+			const dot1 = new THREE.Mesh(new THREE.CircleGeometry(0.1, 10), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+			dot1.position.set(this.user.position.x, 0, this.user.position.z);
+			dot1.rotation.x = -Math.PI / 2;
+			this.scene.add(dot1);
+			const dot2 = new THREE.Mesh(new THREE.CircleGeometry(0.1, 10), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+			dot2.position.set(x, 0, z);
+			dot2.rotation.x = -Math.PI / 2;
+			this.scene.add(dot2);
+			const dir = new THREE.Vector3(x - this.user.position.x, 0, z - this.user.position.z);
+			const dist = dir.length();
+			dir.normalize();
+			const arrow = new THREE.ArrowHelper(dir, this.user.position.clone(), dist, 0xff0000);
+			this.scene.add(arrow);
+			setTimeout(() => {
+				this.scene.remove(dot1);
+				this.scene.remove(dot2);
+				this.scene.remove(arrow);
+			}, 2000);
+		}
+		const angleRad = (angle * Math.PI) / 180;
+		this.user.rotation.y = angleRad;
+		this.moveUserToPoint(x, z);
 	}
 
 	moveUser() {

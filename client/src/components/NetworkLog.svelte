@@ -10,14 +10,6 @@
 
 <style>
 	.panel {
-		position: fixed;
-		bottom: 5vh;
-		right: 1vh;
-		z-index: 100;
-		background-color: var(--form-bg);
-		color: var(--form-text);
-		border: 0.2vh solid #000;
-		border-radius: 1vh;
 		display: flex;
 		flex-direction: column;
 		height: 30vh;

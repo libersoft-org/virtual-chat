@@ -12,7 +12,6 @@
 - Add rotation by buttons, not just mouse right click and drag
 - Process login, leave etc. errors (show errors in error bar)
 - Chat bubble in UI window - through network (not directly from user)
-- Client - optimize for mobiles (responsivity, control etc.)
 - Add log levels - add in settings from which level we want to log - for example - only WARN and ERR, no INFO / DEBUG
 - Add server address in initial form (saved in local storage)
 - Add network users on client - make "Enter" in login form working

@@ -3,10 +3,8 @@
 
 	let chatEl: HTMLDivElement;
 
-	$effect(() => {
-		if ($chatMessages.length && chatEl) {
-			chatEl.scrollTop = chatEl.scrollHeight;
-		}
+	chatMessages.subscribe(() => {
+		if (chatEl) setTimeout(() => (chatEl.scrollTop = chatEl.scrollHeight), 0);
 	});
 </script>
 

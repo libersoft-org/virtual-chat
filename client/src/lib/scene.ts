@@ -2,12 +2,12 @@ import * as THREE from 'three';
 import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 
 export function createRenderer(container: HTMLElement): THREE.WebGLRenderer {
-	const renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+	const isMobile = window.innerWidth <= 768;
+	const renderer = new THREE.WebGLRenderer({ antialias: !isMobile });
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 2));
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.shadowMap.enabled = true;
-	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-	renderer.shadowMap.needsUpdate = true;
+	renderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
 	container.appendChild(renderer.domElement);
 	return renderer;
 }

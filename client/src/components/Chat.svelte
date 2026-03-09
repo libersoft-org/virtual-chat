@@ -3,6 +3,11 @@
 
 	let chatEl: HTMLDivElement;
 
+	function formatTime(iso: string): string {
+		const d = new Date(iso);
+		return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	}
+
 	chatMessages.subscribe(() => {
 		if (chatEl) setTimeout(() => (chatEl.scrollTop = chatEl.scrollHeight), 0);
 	});
@@ -31,6 +36,9 @@
 	.female {
 		color: var(--female-color);
 	}
+	.time {
+		color: #888;
+	}
 </style>
 
 <div id="chat" bind:this={chatEl}>
@@ -38,9 +46,13 @@
 		{#if msg.system}
 			<div class="system"><span class="bold {msg.sex ? 'male' : 'female'}">{msg.name}</span> {msg.message}</div>
 		{:else if msg.private}
-			<div><span class="bold {msg.sex ? 'male' : 'female'}">{msg.name}</span> -> <span class="bold {msg.toSex ? 'male' : 'female'}">{msg.toName} (PM)</span>: {msg.message}</div>
+			<div>
+				{#if msg.timestamp}<span class="time">{formatTime(msg.timestamp)}</span>{/if} <span class="bold {msg.sex ? 'male' : 'female'}">{msg.name}</span> -> <span class="bold {msg.toSex ? 'male' : 'female'}">{msg.toName} (PM)</span>: {msg.message}
+			</div>
 		{:else}
-			<div><span class="bold {msg.sex ? 'male' : 'female'}">{msg.name}</span>: {msg.message}</div>
+			<div>
+				{#if msg.timestamp}<span class="time">{formatTime(msg.timestamp)}</span>{/if} <span class="bold {msg.sex ? 'male' : 'female'}">{msg.name}</span>: {msg.message}
+			</div>
 		{/if}
 	{/each}
 </div>

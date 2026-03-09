@@ -10,7 +10,6 @@
 - If server disconnects, move user to initial page or auto reconnect and spawn on specified spot
 - Add rotation by buttons, not just mouse right click and drag
 - Process login, leave etc. errors (show errors in error bar)
-- Add timestamp in messages
 - Add log levels - add in settings from which level we want to log - for example - only WARN and ERR, no INFO / DEBUG
 - Add server address in initial form (saved in local storage)
 - Add public server list

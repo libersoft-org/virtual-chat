@@ -3,6 +3,7 @@ import { writable } from 'svelte/store';
 interface ChatMessage {
 	name: string;
 	message: string;
+	timestamp?: string;
 	system?: boolean;
 	sex?: boolean;
 	private?: boolean;

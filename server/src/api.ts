@@ -203,6 +203,7 @@ export class API {
 			user: uuid,
 			name: user.name,
 			message: data['message'].trim().substring(0, 250),
+			timestamp: new Date().toISOString(),
 			...(to ? { private: true, toName: this.users[to]!.name } : {}),
 		};
 		if (to) {

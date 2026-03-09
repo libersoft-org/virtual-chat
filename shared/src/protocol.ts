@@ -55,6 +55,7 @@ export interface MessageData {
 	user: string;
 	name: string;
 	message: string;
+	timestamp: string;
 	private?: boolean;
 	toName?: string;
 }

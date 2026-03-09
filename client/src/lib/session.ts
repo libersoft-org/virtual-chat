@@ -54,6 +54,7 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 				{
 					name: data.name,
 					message: data.message,
+					timestamp: data.timestamp,
 					...(sender ? { sex: sender.sex } : {}),
 					...(data.private ? { private: true, toName: data.toName, ...(toUser ? { toSex: toUser.sex } : {}) } : {}),
 				},

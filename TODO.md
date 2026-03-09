@@ -7,6 +7,7 @@
 
 ## Features
 
+- Add jump, throw something (+ count hit)
 - Make uncollapsed accordion resizable (so user can make chat window bigger)
 - If server disconnects, move user to initial page or auto reconnect and spawn on specified spot
 - Add rotation by buttons, not just mouse right click and drag

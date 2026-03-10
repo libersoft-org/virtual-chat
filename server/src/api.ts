@@ -1,5 +1,5 @@
 import { Common } from './common';
-import { ErrorCode, type UserData, type UsersEntry, type EnterData, type LeaveData, type MoveData, type MessageData, type ExpressionData } from '@shared/protocol.ts';
+import { ErrorCode, type UserData, type UsersEntry, type EnterData, type LeaveData, type MoveData, type MessageData, type ExpressionData, type JumpData } from '@shared/protocol.ts';
 import type { Socket } from './socket';
 
 export class API {
@@ -39,6 +39,7 @@ export class API {
 		message: (uuid, data) => this.message(uuid, data),
 		users: uuid => this.handleUsers(uuid),
 		expression: (uuid, data) => this.expression(uuid, data),
+		jump: uuid => this.jump(uuid),
 	};
 
 	handle(uuid: string, json: string): void {
@@ -241,6 +242,20 @@ export class API {
 		this.socket.broadcastToUsers({
 			method: 'expression',
 			data: exprData,
+		});
+	}
+
+	jump(uuid: string): void {
+		const user = this.users[uuid];
+		if (!user) {
+			this.socket.send(uuid, { method: 'jump', error: ErrorCode.NOT_IN_ROOM });
+			return;
+		}
+		this.lastActivity[uuid] = Date.now();
+		const jumpData: JumpData = { user: uuid };
+		this.socket.broadcastToUsers({
+			method: 'jump',
+			data: jumpData,
 		});
 	}
 }

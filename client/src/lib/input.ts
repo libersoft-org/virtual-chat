@@ -4,34 +4,56 @@ import type { World } from './world.ts';
 export function setupInput(world: World): () => void {
 	const onResize = () => onWindowResize(world);
 	const onWheel = (e: WheelEvent) => onDocumentWheel(e, world);
-	const onClick = (e: MouseEvent) => onDocumentClick(e, world, () => Date.now() - lastTouchEnd < 500);
-	let isRightDragging = false;
+	let isLeftDragging = false;
 	let lastMouseX = 0;
+	let mouseDownX = 0;
+	let mouseDownY = 0;
 	let lastPinchDist = 0;
 	let isTouchDragging = false;
 	let lastTouchX = 0;
 	let touchStartX = 0;
 	let touchStartY = 0;
 	const TAP_THRESHOLD = 10;
+	const SWIPE_UP_THRESHOLD = 50;
+	let lastTouchEnd = 0;
 	const onMouseDown = (e: MouseEvent) => {
-		if (e.button === 2 && e.target === world.renderer.domElement) {
-			isRightDragging = true;
+		if (e.button === 0 && e.target === world.renderer.domElement) {
+			isLeftDragging = true;
 			lastMouseX = e.clientX;
+			mouseDownX = e.clientX;
+			mouseDownY = e.clientY;
 		}
 	};
 	const onMouseMove = (e: MouseEvent) => {
-		if (!isRightDragging) return;
+		if (!isLeftDragging) return;
 		const dx = e.clientX - lastMouseX;
 		world.cameraAngle -= dx * 0.005;
 		lastMouseX = e.clientX;
 	};
 	const onMouseUp = (e: MouseEvent) => {
-		if (e.button === 2) isRightDragging = false;
+		if (e.button === 0 && isLeftDragging) {
+			const dx = e.clientX - mouseDownX;
+			const dy = e.clientY - mouseDownY;
+			if (Math.sqrt(dx * dx + dy * dy) <= TAP_THRESHOLD && Date.now() - lastTouchEnd > 500) {
+				if (world.user && e.target === world.renderer.domElement) {
+					moveUserToPoint(e.clientX, e.clientY, world);
+				}
+			}
+			isLeftDragging = false;
+		}
 	};
 	const onContextMenu = (e: MouseEvent) => {
-		if (e.target === world.renderer.domElement) e.preventDefault();
+		if (e.target === world.renderer.domElement) {
+			e.preventDefault();
+			world.onJump();
+		}
 	};
-	let lastTouchEnd = 0;
+	const onKeyDown = (e: KeyboardEvent) => {
+		if (e.code === 'Space' && e.target === document.body) {
+			e.preventDefault();
+			world.onJump();
+		}
+	};
 
 	const onTouchStart = (e: TouchEvent) => {
 		if (e.target !== world.renderer.domElement) return;
@@ -48,6 +70,7 @@ export function setupInput(world: World): () => void {
 			isTouchDragging = false;
 		}
 	};
+	let isTouchSwipeUp = false;
 	const onTouchMove = (e: TouchEvent) => {
 		if (e.target !== world.renderer.domElement) return;
 		if (e.touches.length === 2) {
@@ -63,7 +86,10 @@ export function setupInput(world: World): () => void {
 		} else if (e.touches.length === 1) {
 			const dx = e.touches[0]!.clientX - touchStartX;
 			const dy = e.touches[0]!.clientY - touchStartY;
-			if (!isTouchDragging && Math.sqrt(dx * dx + dy * dy) > TAP_THRESHOLD) isTouchDragging = true;
+			if (!isTouchDragging && !isTouchSwipeUp && Math.sqrt(dx * dx + dy * dy) > TAP_THRESHOLD) {
+				if (dy < 0 && Math.abs(dy) > Math.abs(dx)) isTouchSwipeUp = true;
+				else isTouchDragging = true;
+			}
 			if (isTouchDragging) {
 				e.preventDefault();
 				const moveDx = e.touches[0]!.clientX - lastTouchX;
@@ -75,11 +101,16 @@ export function setupInput(world: World): () => void {
 	const onTouchEnd = (e: TouchEvent) => {
 		if (e.target !== world.renderer.domElement) return;
 		lastTouchEnd = Date.now();
-		if (!isTouchDragging && e.changedTouches.length === 1 && e.touches.length === 0) {
-			const touch = e.changedTouches[0]!;
-			const dx = touch.clientX - touchStartX;
-			const dy = touch.clientY - touchStartY;
-			if (Math.sqrt(dx * dx + dy * dy) <= TAP_THRESHOLD) onTouchTap(touch, world);
+		if (e.changedTouches.length === 1 && e.touches.length === 0) {
+			if (isTouchSwipeUp) {
+				const dy = e.changedTouches[0]!.clientY - touchStartY;
+				if (dy < -SWIPE_UP_THRESHOLD) world.onJump();
+			} else if (!isTouchDragging) {
+				const touch = e.changedTouches[0]!;
+				const dx = touch.clientX - touchStartX;
+				const dy = touch.clientY - touchStartY;
+				if (Math.sqrt(dx * dx + dy * dy) <= TAP_THRESHOLD) onTouchTap(touch, world);
+			}
 		}
 		if (e.touches.length === 1) {
 			touchStartX = e.touches[0]!.clientX;
@@ -87,25 +118,26 @@ export function setupInput(world: World): () => void {
 			lastTouchX = e.touches[0]!.clientX;
 		}
 		isTouchDragging = false;
+		isTouchSwipeUp = false;
 	};
 	window.addEventListener('resize', onResize);
 	document.addEventListener('wheel', onWheel);
-	document.addEventListener('click', onClick);
 	document.addEventListener('mousedown', onMouseDown);
 	document.addEventListener('mousemove', onMouseMove);
 	document.addEventListener('mouseup', onMouseUp);
 	document.addEventListener('contextmenu', onContextMenu);
+	document.addEventListener('keydown', onKeyDown);
 	document.addEventListener('touchstart', onTouchStart, { passive: false });
 	document.addEventListener('touchmove', onTouchMove, { passive: false });
 	document.addEventListener('touchend', onTouchEnd);
 	return () => {
 		window.removeEventListener('resize', onResize);
 		document.removeEventListener('wheel', onWheel);
-		document.removeEventListener('click', onClick);
 		document.removeEventListener('mousedown', onMouseDown);
 		document.removeEventListener('mousemove', onMouseMove);
 		document.removeEventListener('mouseup', onMouseUp);
 		document.removeEventListener('contextmenu', onContextMenu);
+		document.removeEventListener('keydown', onKeyDown);
 		document.removeEventListener('touchstart', onTouchStart);
 		document.removeEventListener('touchmove', onTouchMove);
 		document.removeEventListener('touchend', onTouchEnd);
@@ -127,19 +159,11 @@ function onDocumentWheel(event: WheelEvent, world: World) {
 	world.camera.updateProjectionMatrix();
 }
 
-function onDocumentClick(event: MouseEvent, world: World, isRecentTouch: () => boolean) {
-	if (isRecentTouch()) return;
-	if (world.user && event.target === world.renderer.domElement) {
-		event.preventDefault();
-		moveUserToTouch(event.clientX, event.clientY, world);
-	}
-}
-
 function onTouchTap(touch: Touch, world: World) {
-	if (world.user) moveUserToTouch(touch.clientX, touch.clientY, world);
+	if (world.user) moveUserToPoint(touch.clientX, touch.clientY, world);
 }
 
-function moveUserToTouch(clientX: number, clientY: number, world: World) {
+function moveUserToPoint(clientX: number, clientY: number, world: World) {
 	const raycaster = new THREE.Raycaster();
 	const mouse = new THREE.Vector2();
 	mouse.x = (clientX / window.innerWidth) * 2 - 1;

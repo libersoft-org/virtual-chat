@@ -70,6 +70,10 @@ export interface ExpressionData {
 	expression: number;
 }
 
+export interface JumpData {
+	user: string;
+}
+
 export interface ServerMessage<T = unknown> {
 	method?: string;
 	error?: ErrorCode;

@@ -9,6 +9,7 @@ import { setupInput } from './input.ts';
 export class World {
 	container: HTMLElement;
 	onMove: (x: number, z: number, angle: number) => void;
+	onJump: () => void;
 	scene: THREE.Scene;
 	deltaTime = 0;
 	currentTime = 0;
@@ -29,6 +30,7 @@ export class World {
 	cameraHeight = 10;
 	cleanupInput: () => void;
 	chatBubbles: { obj: CSS2DObject; user: THREE.Group }[] = [];
+	jumpingGroups: Map<THREE.Group, number> = new Map();
 	otherPlayers: Map<
 		string,
 		{
@@ -41,9 +43,10 @@ export class World {
 		}
 	> = new Map();
 
-	constructor(container: HTMLElement, onMove: (x: number, y: number, angle: number) => void) {
+	constructor(container: HTMLElement, onMove: (x: number, y: number, angle: number) => void, onJump: () => void) {
 		this.container = container;
 		this.onMove = onMove;
+		this.onJump = onJump;
 		this.scene = new THREE.Scene();
 		this.renderer = createRenderer(container);
 		createLights(this.scene);
@@ -60,6 +63,7 @@ export class World {
 	update() {
 		this.animationFrameId = requestAnimationFrame(this.update);
 		this.moveUser();
+		this.animateJumps();
 		this.updateOverlays();
 		this.updateCamera();
 		this.renderer.render(this.scene, this.camera);
@@ -98,6 +102,26 @@ export class World {
 	moveUserToPoint(x: number, z: number) {
 		this.targetPosition.x = x;
 		this.targetPosition.z = z;
+	}
+
+	startJump(group: THREE.Group) {
+		if (!this.jumpingGroups.has(group)) this.jumpingGroups.set(group, 0);
+	}
+
+	animateJumps() {
+		const jumpDuration = 400;
+		const jumpHeight = 1.5;
+		for (const [group, elapsed] of this.jumpingGroups) {
+			const t = elapsed + this.deltaTime;
+			const progress = Math.min(t / jumpDuration, 1);
+			group.position.y = Math.sin(progress * Math.PI) * jumpHeight;
+			if (progress >= 1) {
+				group.position.y = 0;
+				this.jumpingGroups.delete(group);
+			} else {
+				this.jumpingGroups.set(group, t);
+			}
+		}
 	}
 
 	moveUserFromServer(x: number, z: number, angle: number) {

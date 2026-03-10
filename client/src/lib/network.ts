@@ -1,4 +1,4 @@
-import { ErrorCode, type EnterData, type LeaveData, type MoveData, type MessageData, type UsersEntry, type ExpressionData } from '@shared/protocol.ts';
+import { ErrorCode, type EnterData, type LeaveData, type MoveData, type MessageData, type UsersEntry, type ExpressionData, type JumpData } from '@shared/protocol.ts';
 import { connectionStatus, alerts, netLog } from './stores.ts';
 
 const errorMessages: Record<ErrorCode, string> = {
@@ -30,6 +30,7 @@ interface NetworkCallbacks {
 	onMessage: (data: MessageData) => void;
 	onUsers: (data: UsersEntry[]) => void;
 	onExpression: (data: ExpressionData) => void;
+	onJump: (data: JumpData) => void;
 }
 
 export class Network {
@@ -49,6 +50,7 @@ export class Network {
 			message: d => callbacks.onMessage(d),
 			users: d => callbacks.onUsers(d),
 			expression: d => callbacks.onExpression(d),
+			jump: d => callbacks.onJump(d),
 		};
 		this.ws = new WebSocket(url);
 
@@ -114,5 +116,9 @@ export class Network {
 			method: 'expression',
 			data: { expression },
 		});
+	}
+
+	sendJump() {
+		this.send({ method: 'jump', data: {} });
 	}
 }

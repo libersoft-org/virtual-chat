@@ -2,7 +2,7 @@ import { Network } from './network.ts';
 import { World } from './world.ts';
 import { chatMessages, isLoggedIn, userList, selectedUser } from './stores.ts';
 import { get } from 'svelte/store';
-import type { EnterData, LeaveData, MoveData, MessageData, UsersEntry, ExpressionData } from '@shared/protocol.ts';
+import type { EnterData, LeaveData, MoveData, MessageData, UsersEntry, ExpressionData, JumpData } from '@shared/protocol.ts';
 
 export interface Session {
 	enter: (name: string, sex: boolean | null, color: number) => void;
@@ -78,11 +78,25 @@ export function createSession(container: HTMLElement, wsUrl: string): Session {
 			if (data.user === network.myUuid) world.setExpression(data.expression);
 			else world.setOtherPlayerExpression(data.user, data.expression);
 		},
+		onJump: (data: JumpData) => {
+			if (data.user === network.myUuid) {
+				if (world.user) world.startJump(world.user);
+			} else {
+				const player = world.otherPlayers.get(data.user);
+				if (player) world.startJump(player.group);
+			}
+		},
 	});
 
-	const world = new World(container, (x: number, z: number, angle: number) => {
-		network.sendMove(x, z, angle);
-	});
+	const world = new World(
+		container,
+		(x: number, z: number, angle: number) => {
+			network.sendMove(x, z, angle);
+		},
+		() => {
+			network.sendJump();
+		}
+	);
 
 	return {
 		enter: (name, sex, color) => network.sendEnter(name, sex, color),

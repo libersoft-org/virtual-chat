@@ -19,6 +19,7 @@ export class API {
 	}
 
 	checkIdle(): void {
+		if (!this.idleTimeout) return;
 		const now = Date.now();
 		for (const uuid of Object.keys(this.users)) {
 			if (now - (this.lastActivity[uuid] ?? 0) > this.idleTimeout) {
@@ -89,10 +90,11 @@ export class API {
 	}
 
 	rateLimit(uuid: string, type: 'move' | 'message'): boolean {
+		const limit = type === 'move' ? (Common.settings.limits?.moves_per_second ?? 10) : (Common.settings.limits?.messages_per_second ?? 3);
+		if (!limit) return true;
 		if (!this.rateLimits[uuid]) this.rateLimits[uuid] = { moveTimestamps: [], messageTimestamps: [] };
 		const now = Date.now();
 		const timestamps = type === 'move' ? this.rateLimits[uuid].moveTimestamps : this.rateLimits[uuid].messageTimestamps;
-		const limit = type === 'move' ? (Common.settings.limits?.moves_per_second ?? 10) : (Common.settings.limits?.messages_per_second ?? 3);
 		while (timestamps.length > 0 && timestamps[0]! <= now - 1000) timestamps.shift();
 		if (timestamps.length >= limit) {
 			this.socket.send(uuid, { method: type, error: ErrorCode.RATE_LIMITED });

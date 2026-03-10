@@ -81,6 +81,11 @@ export function setupInput(world: World): () => void {
 			const dy = touch.clientY - touchStartY;
 			if (Math.sqrt(dx * dx + dy * dy) <= TAP_THRESHOLD) onTouchTap(touch, world);
 		}
+		if (e.touches.length === 1) {
+			touchStartX = e.touches[0]!.clientX;
+			touchStartY = e.touches[0]!.clientY;
+			lastTouchX = e.touches[0]!.clientX;
+		}
 		isTouchDragging = false;
 	};
 	window.addEventListener('resize', onResize);

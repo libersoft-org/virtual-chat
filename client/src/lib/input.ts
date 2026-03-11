@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { World } from './world.ts';
 
-export function setupInput(world: World): () => void {
+export function setupInput(world: World): { cleanup: () => void; enable: () => void; disable: () => void } {
 	const onResize = () => onWindowResize(world);
 	const onWheel = (e: WheelEvent) => onDocumentWheel(e, world);
 	let isLeftDragging = false;
@@ -35,7 +35,7 @@ export function setupInput(world: World): () => void {
 			const dx = e.clientX - mouseDownX;
 			const dy = e.clientY - mouseDownY;
 			if (Math.sqrt(dx * dx + dy * dy) <= TAP_THRESHOLD && Date.now() - lastTouchEnd > 500) {
-				if (world.user && e.target === world.renderer.domElement) {
+				if (e.target === world.renderer.domElement) {
 					moveUserToPoint(e.clientX, e.clientY, world);
 				}
 			}
@@ -120,18 +120,23 @@ export function setupInput(world: World): () => void {
 		isTouchDragging = false;
 		isTouchSwipeUp = false;
 	};
-	window.addEventListener('resize', onResize);
-	document.addEventListener('wheel', onWheel);
-	document.addEventListener('mousedown', onMouseDown);
-	document.addEventListener('mousemove', onMouseMove);
-	document.addEventListener('mouseup', onMouseUp);
-	document.addEventListener('contextmenu', onContextMenu);
-	document.addEventListener('keydown', onKeyDown);
-	document.addEventListener('touchstart', onTouchStart, { passive: false });
-	document.addEventListener('touchmove', onTouchMove, { passive: false });
-	document.addEventListener('touchend', onTouchEnd);
-	return () => {
-		window.removeEventListener('resize', onResize);
+
+	const enable = () => {
+		document.addEventListener('wheel', onWheel);
+		document.addEventListener('mousedown', onMouseDown);
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
+		document.addEventListener('contextmenu', onContextMenu);
+		document.addEventListener('keydown', onKeyDown);
+		document.addEventListener('touchstart', onTouchStart, { passive: false });
+		document.addEventListener('touchmove', onTouchMove, { passive: false });
+		document.addEventListener('touchend', onTouchEnd);
+	};
+
+	const disable = () => {
+		isLeftDragging = false;
+		isTouchDragging = false;
+		isTouchSwipeUp = false;
 		document.removeEventListener('wheel', onWheel);
 		document.removeEventListener('mousedown', onMouseDown);
 		document.removeEventListener('mousemove', onMouseMove);
@@ -141,6 +146,16 @@ export function setupInput(world: World): () => void {
 		document.removeEventListener('touchstart', onTouchStart);
 		document.removeEventListener('touchmove', onTouchMove);
 		document.removeEventListener('touchend', onTouchEnd);
+	};
+
+	window.addEventListener('resize', onResize);
+	return {
+		cleanup: () => {
+			disable();
+			window.removeEventListener('resize', onResize);
+		},
+		enable,
+		disable,
 	};
 }
 
@@ -160,7 +175,7 @@ function onDocumentWheel(event: WheelEvent, world: World) {
 }
 
 function onTouchTap(touch: Touch, world: World) {
-	if (world.user) moveUserToPoint(touch.clientX, touch.clientY, world);
+	moveUserToPoint(touch.clientX, touch.clientY, world);
 }
 
 function moveUserToPoint(clientX: number, clientY: number, world: World) {

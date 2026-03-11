@@ -29,6 +29,8 @@ export class World {
 	cameraRadius = 10;
 	cameraHeight = 10;
 	cleanupInput: () => void;
+	enableInput: () => void;
+	disableInput: () => void;
 	chatBubbles: { obj: CSS2DObject; user: THREE.Group }[] = [];
 	jumpingGroups: Map<THREE.Group, number> = new Map();
 	otherPlayers: Map<
@@ -53,7 +55,10 @@ export class World {
 		createSky(this.scene);
 		this.floor = createFloor(this.scene);
 		this.camera = createCamera();
-		this.cleanupInput = setupInput(this);
+		const input = setupInput(this);
+		this.cleanupInput = input.cleanup;
+		this.enableInput = input.enable;
+		this.disableInput = input.disable;
 		this.targetPosition = new THREE.Vector3();
 		this.css2dRenderer = createCSS2DRenderer(container);
 		this.update = this.update.bind(this);
@@ -88,6 +93,7 @@ export class World {
 		this.user = group;
 		this.scene.add(this.user);
 		this.targetPosition.set(0, 0, 0);
+		this.enableInput();
 	}
 
 	setExpression(faceNum: number) {
@@ -195,6 +201,7 @@ export class World {
 	}
 
 	removeUser() {
+		this.disableInput();
 		if (this.user) {
 			this.scene.remove(this.user);
 			this.user = undefined;
